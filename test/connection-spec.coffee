@@ -37,6 +37,9 @@ describe 'Socket.io v1', ->
   afterEach (done) ->
     @upstreamMeshblu.stop done
 
+  it 'should listen on port 0xcafe', ->
+    expect(@sut.address().port).to.deep.equal 0xcafe
+
   it 'should create a job in the job queue', (done) ->
     jobManager = new JobManager
       client: new RedisNS 'ns', redis.createClient(@redisId)
