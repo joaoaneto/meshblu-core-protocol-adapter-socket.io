@@ -27,8 +27,11 @@ class Connect
       callback null,
         sut: @sut
         connection: @connection
-        jobManager: @jobManager
         upstreamSocket: @upstreamSocket
+        device: {uuid: 'masseuse', token: 'assassin'}
+        jobManager: new JobManager
+          client: new RedisNS 'ns', redis.createClient(@redisId)
+          timeoutSeconds: 1
 
   shutItDown: (callback) =>
     @connection.close()

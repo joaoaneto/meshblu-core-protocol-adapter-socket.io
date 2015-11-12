@@ -16,26 +16,42 @@ class SocketIOHandler
     @upstream?.close()
 
   onIdentity: (auth) =>
+    @auth = _.pick auth, 'uuid', 'token'
+
     request =
       metadata:
         jobType: 'Authenticate'
-        auth: _.pick(auth, 'uuid', 'token')
+        auth: @auth
 
     @jobManager.do 'request', 'response', request, (error, response) =>
-      return @_emitNotReady 504, _.pick(auth, 'uuid', 'token') if error?
-      return @_emitNotReady 401, _.pick(auth, 'uuid', 'token') unless response.metadata.code == 204
+      return @_emitNotReady 504, @auth if error?
+      return @_emitNotReady 401, @auth unless response.metadata.code == 204
 
       @upstream = _.bindAll meshblu.createConnection
         server: @meshbluConfig.server
         port: @meshbluConfig.port
-        uuid: auth.uuid
-        token: auth.token
+        uuid: @auth.uuid
+        token: @auth.token
 
       @upstream.on 'ready', @onUpstreamReady
       @upstream.on 'notReady', (response) => @socket.emit 'notReady', response
 
+  onUpdateAs: (request, callback) =>
+    updateDeviceRequest =
+      metadata:
+        jobType: 'UpdateDevice'
+        toUuid: request.metadata.toUuid
+        auth: @auth
+      data: request.data
+
+    @jobManager.do 'request', 'response', updateDeviceRequest, (error, response) =>
+    callback({})
+
   onUpstreamReady: (response)=>
     @socket.emit 'ready', response
+
+    @socket.on 'updateas', @onUpdateAs
+
     @socket.on 'data', @upstream.data
     @socket.on 'device', @upstream.device
     @socket.on 'devices', @upstream.devices
