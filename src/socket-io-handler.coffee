@@ -1,4 +1,5 @@
 _ = require 'lodash'
+http = require 'http'
 JobManager = require 'meshblu-core-job-manager'
 meshblu = require 'meshblu'
 
@@ -45,7 +46,8 @@ class SocketIOHandler
       data: request.data
 
     @jobManager.do 'request', 'response', updateDeviceRequest, (error, response) =>
-    callback({})
+      return callback metadata: {code: 504, status: http.STATUS_CODES[504]} if error?
+      callback response
 
   onUpstreamReady: (response)=>
     @socket.emit 'ready', response

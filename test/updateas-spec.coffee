@@ -1,6 +1,8 @@
+async   = require 'async'
+_       = require 'lodash'
 Connect = require './connect'
 
-describe 'updateas', ->
+describe.only 'updateas', ->
   beforeEach (done) ->
     @connect = new Connect
     @connect.connect (error, things) =>
@@ -22,10 +24,14 @@ describe 'updateas', ->
 
       @connection.socket.emit 'updateas', request, @onResponse = sinon.spy()
 
-    it 'should create an UpdateDevice request', (done) ->
-      @jobManager.getRequest ['request'], (error, request) =>
-        return done error if error?
-        expect(request).to.containSubset
+    describe 'when it has created a request', ->
+      beforeEach (done) ->
+        @jobManager.getRequest ['request'], (error, @request) =>
+          expect(@request).to.exist
+          done error
+
+      it 'should create an UpdateDevice request', ->
+        expect(@request).to.containSubset
           metadata:
             auth:
               uuid: @device.uuid
@@ -33,4 +39,60 @@ describe 'updateas', ->
             jobType: 'UpdateDevice'
             toUuid: @device.uuid
           rawData: '{"shock":"you will not believe it"}'
-        done()
+
+      describe 'when the job responds with success', ->
+        beforeEach (done) ->
+          response =
+            metadata:
+              responseId: @request.metadata.responseId
+              code: 204
+              status: 'No Content'
+
+          @jobManager.createResponse 'response', response, done
+
+        it 'should call the callback with the response', (done) ->
+          onResponseCalled = => @onResponse.called
+          wait = (callback) => _.delay callback, 10
+
+          async.until onResponseCalled, wait, =>
+            [response] = @onResponse.firstCall.args
+            expect(response).to.containSubset
+              metadata:
+                code: 204
+                status: 'No Content'
+            done()
+
+      describe 'when the job responds with failure', ->
+        beforeEach (done) ->
+          response =
+            metadata:
+              responseId: @request.metadata.responseId
+              code: 422
+              status: 'No Content'
+
+          @jobManager.createResponse 'response', response, done
+
+        it 'should call the callback with the response', (done) ->
+          onResponseCalled = => @onResponse.called
+          wait = (callback) => _.delay callback, 10
+
+          async.until onResponseCalled, wait, =>
+            [response] = @onResponse.firstCall.args
+            expect(response).to.containSubset
+              metadata:
+                code: 422
+                status: 'No Content'
+            done()
+
+      describe 'when the job never responds', ->
+        it 'should call the callback with the response', (done) ->
+          onResponseCalled = => @onResponse.called
+          wait = (callback) => _.delay callback, 10
+
+          async.until onResponseCalled, wait, =>
+            [response] = @onResponse.firstCall.args
+            expect(response).to.containSubset
+              metadata:
+                code: 504
+                status: 'Gateway Timeout'
+            done()
