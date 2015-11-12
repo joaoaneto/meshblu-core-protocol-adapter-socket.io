@@ -2,7 +2,7 @@ async   = require 'async'
 _       = require 'lodash'
 Connect = require './connect'
 
-describe.only 'updateas', ->
+describe 'updateas', ->
   beforeEach (done) ->
     @connect = new Connect
     @connect.connect (error, things) =>
