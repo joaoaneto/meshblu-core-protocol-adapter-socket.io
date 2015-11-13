@@ -11,6 +11,7 @@ class Server
 
   start: (callback) =>
     @server = http.createServer()
+    @server.on 'request', @onRequest
     @io = SocketIO @server
     @io.on 'connection', @onConnection
     @server.listen @port, callback
@@ -26,5 +27,15 @@ class Server
       meshbluConfig: @meshbluConfig
 
     socketIOHandler.initialize()
+
+  onRequest: (request, response) =>
+    if request.url == '/healthcheck'
+      response.writeHead 200
+      response.write JSON.stringify online: true
+      response.end()
+      return
+
+    response.writeHead 404
+    response.end()
 
 module.exports = Server

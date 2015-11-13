@@ -5,7 +5,7 @@ meshblu = require 'meshblu'
 
 class SocketIOHandler
   constructor: (options) ->
-    {@socket,client,timeoutSeconds, @meshbluConfig} = options
+    {@socket,client,timeoutSeconds,@meshbluConfig} = options
     @jobManager = new JobManager client: client, timeoutSeconds: timeoutSeconds
 
   initialize: =>
