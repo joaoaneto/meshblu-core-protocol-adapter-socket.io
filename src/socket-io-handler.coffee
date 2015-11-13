@@ -36,6 +36,9 @@ class SocketIOHandler
 
       @upstream.on 'ready', @onUpstreamReady
       @upstream.on 'notReady', (response) => @socket.emit 'notReady', response
+      @upstream.on 'config', @onUpstreamConfig
+      @upstream.socket.on 'data', @onUpstreamData # data is not proxied by meshblu-npm
+      @upstream.on 'message', @onUpstreamMessage
 
   onUpdateAs: (request, callback) =>
     updateDeviceRequest =
@@ -48,6 +51,15 @@ class SocketIOHandler
     @jobManager.do 'request', 'response', updateDeviceRequest, (error, response) =>
       return callback metadata: {code: 504, status: http.STATUS_CODES[504]} if error?
       callback response
+
+  onUpstreamConfig: (message) =>
+    @socket.emit 'config', message
+
+  onUpstreamData: (message) =>
+    @socket.emit 'data', message
+
+  onUpstreamMessage: (message) =>
+    @socket.emit 'message', message
 
   onUpstreamReady: (response)=>
     @socket.emit 'ready', response
