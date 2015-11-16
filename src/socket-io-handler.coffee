@@ -66,19 +66,29 @@ class SocketIOHandler
 
     @socket.on 'updateas', @onUpdateAs
 
+    @socket.on 'authenticate', @upstream.authenticate
+    @socket.on 'claimdevice', @upstream.claimdevice
     @socket.on 'data', @upstream.data
     @socket.on 'device', @upstream.device
     @socket.on 'devices', @upstream.devices
+    @socket.on 'events', @upstream.events
     @socket.on 'generateAndStoreToken', @upstream.generateAndStoreToken
     @socket.on 'getdata', @upstream.getdata
+    @socket.on 'getPublicKey', @upstream.getPublicKey
+    @socket.on 'localdevices', @upstream.localdevices
     @socket.on 'message', @upstream.message
+    @socket.on 'mydevices', @upstream.mydevices
     @socket.on 'register', @upstream.register
+    @socket.on 'resetToken', @upstream.resetToken
     @socket.on 'revokeToken', @upstream.revokeToken
+    @socket.on 'status', @upstream.status
     @socket.on 'subscribe', @upstream.subscribe
+    @socket.on 'unclaimeddevices', @upstream.unclaimeddevices
     @socket.on 'unregister', @upstream.unregister
     @socket.on 'unsubscribe', @upstream.unsubscribe
     @socket.on 'update', @upstream.update
     @socket.on 'whoami', @upstream.whoami
+
 
   _emitNotReady: (code, auth) =>
     @socket.emit 'notReady',
