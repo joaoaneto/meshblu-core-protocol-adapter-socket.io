@@ -17,7 +17,7 @@ describe 'updateas', ->
     beforeEach ->
       request =
         metadata:
-          fromUuid: @device.uuid
+          fromUuid: 'sink-hole'
           toUuid: @device.uuid
         data:
           shock: 'you will not believe it'
@@ -37,6 +37,7 @@ describe 'updateas', ->
               uuid: @device.uuid
               token: @device.token
             jobType: 'UpdateDevice'
+            fromUuid: 'sink-hole'
             toUuid: @device.uuid
           rawData: '{"shock":"you will not believe it"}'
 

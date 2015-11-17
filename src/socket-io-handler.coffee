@@ -45,6 +45,7 @@ class SocketIOHandler
       metadata:
         jobType: 'UpdateDevice'
         toUuid: request.metadata.toUuid
+        fromUuid: request.metadata.fromUuid
         auth: @auth
       data: request.data
 
