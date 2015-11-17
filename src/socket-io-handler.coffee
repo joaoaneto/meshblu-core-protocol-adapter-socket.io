@@ -29,6 +29,7 @@ class SocketIOHandler
       return @_emitNotReady 401, @auth unless response.metadata.code == 204
 
       @upstream = _.bindAll meshblu.createConnection
+        auto_set_online: @meshbluConfig.auto_set_online
         server: @meshbluConfig.server
         port: @meshbluConfig.port
         uuid: @auth.uuid
