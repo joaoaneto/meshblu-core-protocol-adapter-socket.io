@@ -39,8 +39,9 @@ class SocketIOHandler
       @upstream.on 'ready', @onUpstreamReady
       @upstream.on 'notReady', (response) =>
         @socket.emit 'notReady', response
-        @socket.disconnect()
       @upstream.on 'config', @onUpstreamConfig
+      @upstream.on 'disconnect', (response) =>
+        @socket.disconnect()
       @upstream.socket.on 'data', @onUpstreamData # data is not proxied by meshblu-npm
       @upstream.on 'message', @onUpstreamMessage
 
