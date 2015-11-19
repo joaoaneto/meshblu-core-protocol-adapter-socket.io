@@ -18,13 +18,7 @@ class SocketIOHandler
 
   onIdentity: (auth) =>
     @auth = _.pick auth, 'uuid', 'token'
-
-    request =
-      metadata:
-        jobType: 'Authenticate'
-        auth: @auth
-
-    @jobManager.do 'request', 'response', request, (error, response) =>
+    @doAuthenticate @auth, (error, response) =>
       return @_emitNotReady 504, @auth if error?
       return @_emitNotReady 401, @auth unless response.metadata.code == 204
 
@@ -68,6 +62,9 @@ class SocketIOHandler
     @socket.emit 'message', message
 
   onUpstreamReady: (response)=>
+    @auth.uuid  = response.uuid
+    @auth.token = response.token
+
     @socket.emit 'ready', response
 
     @socket.on 'updateas', @onUpdateAs
@@ -95,6 +92,16 @@ class SocketIOHandler
     @socket.on 'update', @upstream.update
     @socket.on 'whoami', @upstream.whoami
 
+  doAuthenticate: (auth, callback) =>
+    if !auth.uuid? && !auth.token? # no uuid or token
+      return callback null, metadata: {code: 204}
+
+    request =
+      metadata:
+        jobType: 'Authenticate'
+        auth: auth
+
+    @jobManager.do 'request', 'response', request, callback
 
   _emitNotReady: (code, auth) =>
     @socket.emit 'notReady',
