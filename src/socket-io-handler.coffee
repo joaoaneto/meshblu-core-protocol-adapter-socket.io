@@ -30,13 +30,16 @@ class SocketIOHandler
 
       @upstream = _.bindAll meshblu.createConnection
         auto_set_online: @meshbluConfig.auto_set_online
+        bufferRate: 0
         server: @meshbluConfig.server
         port: @meshbluConfig.port
         uuid: @auth.uuid
         token: @auth.token
 
       @upstream.on 'ready', @onUpstreamReady
-      @upstream.on 'notReady', (response) => @socket.emit 'notReady', response
+      @upstream.on 'notReady', (response) =>
+        @socket.emit 'notReady', response
+        @socket.disconnect()
       @upstream.on 'config', @onUpstreamConfig
       @upstream.socket.on 'data', @onUpstreamData # data is not proxied by meshblu-npm
       @upstream.on 'message', @onUpstreamMessage
@@ -98,5 +101,6 @@ class SocketIOHandler
       token: auth.token
       api: 'connect'
       status: code
+    @socket.disconnect()
 
 module.exports = SocketIOHandler
