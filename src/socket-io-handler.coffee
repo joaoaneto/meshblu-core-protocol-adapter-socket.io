@@ -37,12 +37,11 @@ class SocketIOHandler
         uuid: @auth.uuid
         token: @auth.token
 
+      @upstream.once 'ready', @setupUpstream
       @upstream.on 'ready', @onUpstreamReady
       @upstream.on 'notReady', (response) =>
         @socket.emit 'notReady', response
       @upstream.on 'config', @onUpstreamConfig
-      @upstream.on 'disconnect', (response) =>
-        @socket.disconnect()
       @upstream.socket.on 'data', @onUpstreamData # data is not proxied by meshblu-npm
       @upstream.on 'message', @onUpstreamMessage
 
@@ -68,11 +67,15 @@ class SocketIOHandler
   onUpstreamMessage: (message) =>
     @socket.emit 'message', message
 
-  onUpstreamReady: (response)=>
+  onUpstreamReady: (response) =>
     @auth.uuid  = response.uuid
     @auth.token = response.token
 
     @socket.emit 'ready', response
+
+  setupUpstream: (response) =>
+    @auth.uuid  = response.uuid
+    @auth.token = response.token
 
     @socket.on 'updateas', @onUpdateAs
 
@@ -116,6 +119,5 @@ class SocketIOHandler
       token: auth.token
       api: 'connect'
       status: code
-    @socket.disconnect()
 
 module.exports = SocketIOHandler
