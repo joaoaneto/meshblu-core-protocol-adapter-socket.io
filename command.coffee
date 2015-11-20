@@ -9,6 +9,7 @@ class Command
     port = process.env.PORT ? 80
     namespace = process.env.NAMESPACE ? 'meshblu'
     redisMaxConnections = process.env.REDIS_MAX_CONNECTIONS ? 100
+    redisMaxConnections = parseInt redisMaxConnections
     redisUri  = process.env.REDIS_URI
     meshbluConfig = new MeshbluConfig().toJSON()
 
