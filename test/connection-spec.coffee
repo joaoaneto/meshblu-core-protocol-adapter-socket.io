@@ -6,7 +6,9 @@ redis = require 'fakeredis'
 RedisNS = require '@octoblu/redis-ns'
 Server = require '../src/server'
 JobManager = require 'meshblu-core-job-manager'
+{Pool} = require 'generic-pool'
 UpstreamMeshbluServer = require './upstream-meshblu-server'
+
 
 describe 'Socket.io v1', ->
   beforeEach (done) ->
@@ -16,9 +18,17 @@ describe 'Socket.io v1', ->
       client: new RedisNS 'ns', redis.createClient(@redisId)
       timeoutSeconds: 1
 
+    pool = new Pool
+      max: 1
+      min: 0
+      create: (callback) =>
+        client = new RedisNS 'ns', redis.createClient(@redisId)
+        callback null, client
+      destroy: (client) => client.end true
+
     @sut = new Server
       port: 0xcafe
-      client: new RedisNS 'ns', redis.createClient(@redisId)
+      pool: pool
       timeoutSeconds: 1
       meshbluConfig:
         server: 'localhost'

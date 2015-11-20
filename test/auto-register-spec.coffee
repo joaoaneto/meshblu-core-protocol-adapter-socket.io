@@ -3,6 +3,7 @@ _                     = require 'lodash'
 meshblu               = require 'meshblu'
 redis                 = require 'fakeredis'
 RedisNS               = require '@octoblu/redis-ns'
+{Pool}                = require 'generic-pool'
 Server                = require '../src/server'
 UpstreamMeshbluServer = require './upstream-meshblu-server'
 
@@ -18,9 +19,17 @@ describe 'Auto Register', ->
     @upstreamServer.start done
 
   beforeEach (done) ->
+    pool = new Pool
+      max: 1
+      min: 0
+      create: (callback) =>
+        client = new RedisNS 'ns', redis.createClient(@redisId)
+        callback null, client
+      destroy: (client) => client.end true
+
     @sut = new Server
       port: 0xcafe
-      client: new RedisNS 'ns', redis.createClient(@redisId)
+      pool: pool
       timeoutSeconds: 1
       meshbluConfig:
         server: 'localhost'

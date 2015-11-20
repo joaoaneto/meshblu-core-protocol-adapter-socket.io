@@ -4,8 +4,9 @@ async = require 'async'
 uuid    = require 'uuid'
 redis = require 'fakeredis'
 RedisNS = require '@octoblu/redis-ns'
-Server = require '../src/server'
+{Pool} = require 'generic-pool'
 JobManager = require 'meshblu-core-job-manager'
+Server = require '../src/server'
 UpstreamMeshbluServer = require './upstream-meshblu-server'
 
 class Connect
@@ -42,9 +43,17 @@ class Connect
     ], callback
 
   startServer: (callback) =>
+    pool = new Pool
+      max: 1
+      min: 0
+      create: (callback) =>
+        client = new RedisNS 'ns', redis.createClient(@redisId)
+        callback null, client
+      destroy: (client) => client.end true
+
     @sut = new Server
       port: 0xcafe
-      client: new RedisNS 'ns', redis.createClient(@redisId)
+      pool: pool
       timeoutSeconds: 1
       meshbluConfig:
         server: 'localhost'

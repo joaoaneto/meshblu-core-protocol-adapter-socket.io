@@ -5,13 +5,20 @@ meshblu = require 'meshblu'
 
 class SocketIOHandler
   constructor: (options) ->
-    {@socket,client,timeoutSeconds,@meshbluConfig} = options
-    @jobManager = new JobManager client: client, timeoutSeconds: timeoutSeconds
+    {@socket,@pool,@timeoutSeconds,@meshbluConfig} = options
 
   initialize: =>
     @socket.on 'identity', @onIdentity
     @socket.on 'disconnect', @onDisconnect
     @socket.emit 'identify'
+
+  doJob: (request, callback) =>
+    @pool.acquire (error, client) =>
+      return callback error if error?
+      jobManager = new JobManager client: client, timeoutSeconds: @timeoutSeconds
+      jobManager.do 'request', 'response', request, (error, response) =>
+        @pool.release client
+        callback error, response
 
   onDisconnect: =>
     @upstream?.close()
@@ -48,7 +55,7 @@ class SocketIOHandler
         auth: @auth
       data: request.data
 
-    @jobManager.do 'request', 'response', updateDeviceRequest, (error, response) =>
+    @doJob updateDeviceRequest, (error, response) =>
       return callback metadata: {code: 504, status: http.STATUS_CODES[504]} if error?
       callback response
 
@@ -101,7 +108,7 @@ class SocketIOHandler
         jobType: 'Authenticate'
         auth: auth
 
-    @jobManager.do 'request', 'response', request, callback
+    @doJob request, callback
 
   _emitNotReady: (code, auth) =>
     @socket.emit 'notReady',

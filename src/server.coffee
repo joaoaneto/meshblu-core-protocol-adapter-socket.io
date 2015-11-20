@@ -4,7 +4,7 @@ SocketIOHandler = require './socket-io-handler'
 
 class Server
   constructor: (options) ->
-    {@client, @timeoutSeconds, @port, @meshbluConfig} = options
+    {@pool, @timeoutSeconds, @port, @meshbluConfig} = options
 
   address: =>
     @server.address()
@@ -22,7 +22,7 @@ class Server
   onConnection: (socket) =>
     socketIOHandler = new SocketIOHandler
       socket: socket
-      client: @client
+      pool: @pool
       timeoutSeconds: @timeoutSeconds
       meshbluConfig: @meshbluConfig
 
