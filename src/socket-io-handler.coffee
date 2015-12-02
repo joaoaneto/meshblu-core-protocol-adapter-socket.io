@@ -32,6 +32,7 @@ class SocketIOHandler
       @upstream = _.bindAll meshblu.createConnection
         auto_set_online: @meshbluConfig.auto_set_online
         bufferRate: 0
+        skip_resubscribe_on_reconnect: true
         server: @meshbluConfig.server
         port: @meshbluConfig.port
         uuid: @auth.uuid
