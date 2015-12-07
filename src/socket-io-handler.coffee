@@ -59,6 +59,19 @@ class SocketIOHandler
       return callback metadata: {code: 504, status: http.STATUS_CODES[504]} if error?
       callback response
 
+  onWhoami: (request, callback) =>
+    whoamiRequest =
+      metadata:
+        jobType: 'GetDevice'
+        toUuid: @auth.uuid
+        fromUuid: @auth.uuid
+        auth: @auth
+
+    @doJob whoamiRequest, (error, response) =>
+      return callback null if error?
+      return callback null unless response?
+      callback JSON.parse(response.rawData) if response.rawData?
+
   onUpstreamConfig: (message) =>
     @socket.emit 'config', message
 
@@ -79,6 +92,7 @@ class SocketIOHandler
     @auth.token = response.token
 
     @socket.on 'updateas', @onUpdateAs
+    @socket.on 'whoami', @onWhoami
 
     @socket.on 'authenticate', @upstream.authenticate
     @socket.on 'claimdevice', @upstream.claimdevice
@@ -101,7 +115,6 @@ class SocketIOHandler
     @socket.on 'unregister', @upstream.unregister
     @socket.on 'unsubscribe', @upstream.unsubscribe
     @socket.on 'update', @upstream.update
-    @socket.on 'whoami', @upstream.whoami
 
   doAuthenticate: (auth, callback) =>
     if !auth.uuid? && !auth.token? # no uuid or token
