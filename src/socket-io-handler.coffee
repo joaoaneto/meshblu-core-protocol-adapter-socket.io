@@ -46,7 +46,7 @@ class SocketIOHandler
       @upstream.socket.on 'data', @onUpstreamData # data is not proxied by meshblu-npm
       @upstream.on 'message', @onUpstreamMessage
 
-  onUpdateAs: (request, callback) =>
+  onUpdateAs: (request, callback=->) =>
     updateDeviceRequest =
       metadata:
         jobType: 'UpdateDevice'
@@ -59,18 +59,31 @@ class SocketIOHandler
       return callback metadata: {code: 504, status: http.STATUS_CODES[504]} if error?
       callback response
 
-  onWhoami: (request, callback) =>
-    whoamiRequest =
+  onWhoami: (data, callback=->) =>
+    request =
       metadata:
         jobType: 'GetDevice'
         toUuid: @auth.uuid
         fromUuid: @auth.uuid
         auth: @auth
 
-    @doJob whoamiRequest, (error, response) =>
+    @doJob request, (error, response) =>
       return callback null if error?
       return callback null unless response?
-      callback JSON.parse(response.rawData) if response.rawData?
+      return callback JSON.parse(response.rawData) if response.rawData?
+      callback null
+
+  onSendMessage: (data, callback=->) =>
+    request =
+      metadata:
+        jobType: 'SendMessage'
+        auth: @auth
+      data: data
+
+    @doJob request, (error, response) =>
+      return callback null if error?
+      return callback null unless response?
+      callback null
 
   onUpstreamConfig: (message) =>
     @socket.emit 'config', message
@@ -91,6 +104,7 @@ class SocketIOHandler
     @auth.uuid  = response.uuid
     @auth.token = response.token
 
+    @socket.on 'message', @onSendMessage
     @socket.on 'updateas', @onUpdateAs
     @socket.on 'whoami', @onWhoami
 
@@ -104,7 +118,6 @@ class SocketIOHandler
     @socket.on 'getdata', @upstream.getdata
     @socket.on 'getPublicKey', @upstream.getPublicKey
     @socket.on 'localdevices', @upstream.localdevices
-    @socket.on 'message', @upstream.message
     @socket.on 'mydevices', @upstream.mydevices
     @socket.on 'register', @upstream.register
     @socket.on 'resetToken', @upstream.resetToken
