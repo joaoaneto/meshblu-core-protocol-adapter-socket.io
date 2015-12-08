@@ -3,6 +3,7 @@ http = require 'http'
 JobManager = require 'meshblu-core-job-manager'
 PooledJobManager = require './pooled-job-manager'
 AuthenticateHandler = require './handlers/authenticate-handler'
+UpdateAsHandler = require './handlers/update-as-handler'
 WhoamiHandler = require './handlers/whoami-handler'
 SendMessageHandler = require './handlers/send-message-handler'
 meshblu = require 'meshblu'
@@ -59,19 +60,6 @@ class SocketIOHandler
       @upstream.socket.on 'data', @onUpstreamData # data is not proxied by meshblu-npm
       @upstream.on 'message', @onUpstreamMessage
 
-  onUpdateAs: (request, callback=->) =>
-    updateDeviceRequest =
-      metadata:
-        jobType: 'UpdateDevice'
-        toUuid: request.metadata.toUuid
-        fromUuid: request.metadata.fromUuid
-        auth: @auth
-      data: request.data
-
-    @doJob updateDeviceRequest, (error, response) =>
-      return callback metadata: {code: 504, status: http.STATUS_CODES[504]} if error?
-      callback response
-
   onUpstreamConfig: (message) =>
     @socket.emit 'config', message
 
@@ -92,7 +80,7 @@ class SocketIOHandler
     @auth.token = response.token
 
     @socket.on 'message', @handlerHandler SendMessageHandler
-    @socket.on 'updateas', @onUpdateAs
+    @socket.on 'updateas', @handlerHandler UpdateAsHandler
     @socket.on 'whoami', @handlerHandler WhoamiHandler
 
     @socket.on 'authenticate', @upstream.authenticate
