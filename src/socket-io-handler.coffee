@@ -1,6 +1,5 @@
 _ = require 'lodash'
 http = require 'http'
-JobManager = require 'meshblu-core-job-manager'
 PooledJobManager = require './pooled-job-manager'
 AuthenticateHandler = require './handlers/authenticate-handler'
 UpdateAsHandler = require './handlers/update-as-handler'
@@ -24,14 +23,6 @@ class SocketIOHandler
     @socket.on 'identity', @onIdentity
     @socket.on 'disconnect', @onDisconnect
     @socket.emit 'identify'
-
-  doJob: (request, callback) =>
-    @pool.acquire (error, client) =>
-      return callback error if error?
-      jobManager = new JobManager client: client, timeoutSeconds: @timeoutSeconds
-      jobManager.do 'request', 'response', request, (error, response) =>
-        @pool.release client
-        callback error, response
 
   onDisconnect: =>
     @upstream?.close()
