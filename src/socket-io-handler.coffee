@@ -39,7 +39,7 @@ class SocketIOHandler
   onIdentity: (auth) =>
     @auth = _.pick auth, 'uuid', 'token'
     authenticateHandler = @handlerHandler AuthenticateHandler
-    authenticateHandler.do (error, response) =>
+    authenticateHandler (error, response) =>
       return @_emitNotReady 504, @auth if error?
       return @_emitNotReady 401, @auth unless response.metadata.code == 204
 

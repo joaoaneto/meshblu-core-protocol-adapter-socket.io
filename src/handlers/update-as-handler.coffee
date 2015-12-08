@@ -1,3 +1,5 @@
+http = require 'http'
+
 class UpdateAsHandler
   constructor: ({@jobManager,@auth,@requestQueue,@responseQueue}) ->
 

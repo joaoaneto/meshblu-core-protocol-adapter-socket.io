@@ -2,6 +2,8 @@ class AuthenticateHandler
   constructor: ({@jobManager,@auth,@requestQueue,@responseQueue}) ->
 
   do: (callback=->) =>
+    return callback null, metadata: {code: 204} unless @auth.uuid? && @auth.token?
+
     request =
       metadata:
         jobType: 'Authenticate'
