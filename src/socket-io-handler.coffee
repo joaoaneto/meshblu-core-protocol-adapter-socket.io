@@ -1,11 +1,23 @@
 _ = require 'lodash'
 http = require 'http'
 JobManager = require 'meshblu-core-job-manager'
+PooledJobManager = require './pooled-job-manager'
+AuthenticateHandler = require './handlers/authenticate-handler'
+WhoamiHandler = require './handlers/whoami-handler'
+SendMessageHandler = require './handlers/send-message-handler'
 meshblu = require 'meshblu'
 
 class SocketIOHandler
   constructor: (options) ->
     {@socket,@pool,@timeoutSeconds,@meshbluConfig} = options
+    @jobManager = new PooledJobManager {@pool, @timeoutSeconds}
+
+  handlerHandler: (handlerClass) =>
+    (data, callback) =>
+      requestQueue = 'request'
+      responseQueue = 'response'
+      handler = new handlerClass {@jobManager, @auth, requestQueue, responseQueue}
+      handler.do data, callback
 
   initialize: =>
     @socket.on 'identity', @onIdentity
@@ -25,7 +37,8 @@ class SocketIOHandler
 
   onIdentity: (auth) =>
     @auth = _.pick auth, 'uuid', 'token'
-    @doAuthenticate @auth, (error, response) =>
+    authenticateHandler = @handlerHandler AuthenticateHandler
+    authenticateHandler.do (error, response) =>
       return @_emitNotReady 504, @auth if error?
       return @_emitNotReady 401, @auth unless response.metadata.code == 204
 
@@ -59,32 +72,6 @@ class SocketIOHandler
       return callback metadata: {code: 504, status: http.STATUS_CODES[504]} if error?
       callback response
 
-  onWhoami: (data, callback=->) =>
-    request =
-      metadata:
-        jobType: 'GetDevice'
-        toUuid: @auth.uuid
-        fromUuid: @auth.uuid
-        auth: @auth
-
-    @doJob request, (error, response) =>
-      return callback null if error?
-      return callback null unless response?
-      return callback JSON.parse(response.rawData) if response.rawData?
-      callback null
-
-  onSendMessage: (data, callback=->) =>
-    request =
-      metadata:
-        jobType: 'SendMessage'
-        auth: @auth
-      data: data
-
-    @doJob request, (error, response) =>
-      return callback null if error?
-      return callback null unless response?
-      callback null
-
   onUpstreamConfig: (message) =>
     @socket.emit 'config', message
 
@@ -104,9 +91,9 @@ class SocketIOHandler
     @auth.uuid  = response.uuid
     @auth.token = response.token
 
-    @socket.on 'message', @onSendMessage
+    @socket.on 'message', @handlerHandler SendMessageHandler
     @socket.on 'updateas', @onUpdateAs
-    @socket.on 'whoami', @onWhoami
+    @socket.on 'whoami', @handlerHandler WhoamiHandler
 
     @socket.on 'authenticate', @upstream.authenticate
     @socket.on 'claimdevice', @upstream.claimdevice
@@ -128,17 +115,6 @@ class SocketIOHandler
     @socket.on 'unregister', @upstream.unregister
     @socket.on 'unsubscribe', @upstream.unsubscribe
     @socket.on 'update', @upstream.update
-
-  doAuthenticate: (auth, callback) =>
-    if !auth.uuid? && !auth.token? # no uuid or token
-      return callback null, metadata: {code: 204}
-
-    request =
-      metadata:
-        jobType: 'Authenticate'
-        auth: auth
-
-    @doJob request, callback
 
   _emitNotReady: (code, auth) =>
     @socket.emit 'notReady',
