@@ -2,6 +2,7 @@ _ = require 'lodash'
 http = require 'http'
 PooledJobManager = require './pooled-job-manager'
 AuthenticateHandler = require './handlers/authenticate-handler'
+IdentityAuthenticateHandler = require './handlers/identity-authenticate-handler'
 UpdateAsHandler = require './handlers/update-as-handler'
 WhoamiHandler = require './handlers/whoami-handler'
 SendMessageHandler = require './handlers/send-message-handler'
@@ -29,8 +30,8 @@ class SocketIOHandler
 
   onIdentity: (auth) =>
     @auth = _.pick auth, 'uuid', 'token'
-    authenticateHandler = @handlerHandler AuthenticateHandler
-    authenticateHandler (error, response) =>
+    authenticate = @handlerHandler IdentityAuthenticateHandler
+    authenticate @auth, (error, response) =>
       return @_emitNotReady 504, @auth if error?
       return @_emitNotReady 401, @auth unless response.metadata.code == 204
 
@@ -74,7 +75,7 @@ class SocketIOHandler
     @socket.on 'updateas', @handlerHandler UpdateAsHandler
     @socket.on 'whoami', @handlerHandler WhoamiHandler
 
-    @socket.on 'authenticate', @upstream.authenticate
+    @socket.on 'authenticate', @handlerHandler AuthenticateHandler
     @socket.on 'claimdevice', @upstream.claimdevice
     @socket.on 'data', @upstream.data
     @socket.on 'device', @upstream.device
