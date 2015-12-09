@@ -10,14 +10,13 @@ class Command
     namespace = process.env.NAMESPACE ? 'meshblu'
     redisMaxConnections = process.env.REDIS_MAX_CONNECTIONS ? 100
     redisMaxConnections = parseInt redisMaxConnections
+    timeoutSeconds = process.env.JOB_TIMEOUT_SECONDS ? 30
+    timeoutSeconds = parseInt jobTimeoutSeconds
     redisUri  = process.env.REDIS_URI
     meshbluConfig = new MeshbluConfig().toJSON()
+    pool = @buildPool {namespace, redisUri, redisMaxConnections}
 
-    @server = new Server
-      port: port
-      pool: @buildPool {namespace, redisUri, redisMaxConnections}
-      meshbluConfig: meshbluConfig
-      timeoutSeconds: 30
+    @server = new Server {port, pool, meshbluConfig, timeoutSeconds}
 
   run: =>
     @server.start (error) =>

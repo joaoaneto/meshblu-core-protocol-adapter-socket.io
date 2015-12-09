@@ -2,7 +2,7 @@ async   = require 'async'
 _       = require 'lodash'
 Connect = require './connect'
 
-describe 'whoami', ->
+describe 'emit: whoami', ->
   beforeEach (done) ->
     @connect = new Connect
     @connect.connect (error, things) =>
@@ -15,12 +15,7 @@ describe 'whoami', ->
 
   describe 'when called', ->
     beforeEach ->
-      request =
-        metadata:
-          fromUuid: @device.uuid
-          toUuid: @device.uuid
-
-      @connection.socket.emit 'whoami', request, @onResponse = sinon.spy()
+      @connection.socket.emit 'whoami', {}, @onResponse = sinon.spy()
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
