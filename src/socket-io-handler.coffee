@@ -71,11 +71,11 @@ class SocketIOHandler
     @auth.uuid  = response.uuid
     @auth.token = response.token
 
+    @socket.on 'authenticate', @handlerHandler AuthenticateHandler
     @socket.on 'message', @handlerHandler SendMessageHandler
     @socket.on 'updateas', @handlerHandler UpdateAsHandler
     @socket.on 'whoami', @handlerHandler WhoamiHandler
 
-    @socket.on 'authenticate', @handlerHandler AuthenticateHandler
     @socket.on 'claimdevice', @upstream.claimdevice
     @socket.on 'data', @upstream.data
     @socket.on 'device', @upstream.device
