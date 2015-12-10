@@ -11,7 +11,7 @@ class Command
     redisMaxConnections = process.env.REDIS_MAX_CONNECTIONS ? 100
     redisMaxConnections = parseInt redisMaxConnections
     timeoutSeconds = process.env.JOB_TIMEOUT_SECONDS ? 30
-    timeoutSeconds = parseInt jobTimeoutSeconds
+    timeoutSeconds = parseInt timeoutSeconds
     redisUri  = process.env.REDIS_URI
     meshbluConfig = new MeshbluConfig().toJSON()
     pool = @buildPool {namespace, redisUri, redisMaxConnections}
