@@ -23,7 +23,7 @@ describe 'Auto Register', ->
       max: 1
       min: 0
       create: (callback) =>
-        client = new RedisNS 'ns', redis.createClient(@redisId)
+        client = _.bindAll new RedisNS 'ns', redis.createClient(@redisId)
         callback null, client
       destroy: (client) => client.end true
 

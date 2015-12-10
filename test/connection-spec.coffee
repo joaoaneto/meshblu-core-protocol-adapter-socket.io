@@ -15,14 +15,14 @@ describe 'Socket.io v1', ->
     @redisId = uuid.v1()
 
     @jobManager = new JobManager
-      client: new RedisNS 'ns', redis.createClient(@redisId)
+      client: _.bindAll new RedisNS 'ns', redis.createClient(@redisId)
       timeoutSeconds: 1
 
     pool = new Pool
       max: 1
       min: 0
       create: (callback) =>
-        client = new RedisNS 'ns', redis.createClient(@redisId)
+        client = _.bindAll new RedisNS 'ns', redis.createClient(@redisId)
         callback null, client
       destroy: (client) => client.end true
 
@@ -52,7 +52,7 @@ describe 'Socket.io v1', ->
 
   it 'should create a job in the job queue', (done) ->
     jobManager = new JobManager
-      client: new RedisNS 'ns', redis.createClient(@redisId)
+      client: _.bindAll new RedisNS 'ns', redis.createClient(@redisId)
       timeoutSeconds: 1
 
     jobManager.getRequest ['request'], (error, request) =>

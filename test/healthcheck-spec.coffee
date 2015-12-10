@@ -1,3 +1,4 @@
+_       = require 'lodash'
 Server  = require '../src/server'
 uuid    = require 'uuid'
 url     = require 'url'
@@ -11,7 +12,7 @@ describe 'healthcheck', ->
 
     @sut = new Server
       port: 0xcafe
-      client: new RedisNS 'ns', redis.createClient(@redisId)
+      client: _.bindAll new RedisNS 'ns', redis.createClient(@redisId)
       timeoutSeconds: 1
       meshbluConfig:
         server: 'localhost'
