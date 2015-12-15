@@ -25,14 +25,15 @@ class Connect
       @authenticateUpstreamConnection
     ], (error) =>
       return callback error if error?
-      callback null,
-        sut: @sut
-        connection: @connection
-        upstreamSocket: @upstreamSocket
-        device: {uuid: 'masseuse', token: 'assassin'}
-        jobManager: new JobManager
-          client: _.bindAll new RedisNS 'ns', redis.createClient(@redisId)
-          timeoutSeconds: 1
+      @connection.on 'ready', =>
+        callback null,
+          sut: @sut
+          connection: @connection
+          upstreamSocket: @upstreamSocket
+          device: {uuid: 'masseuse', token: 'assassin'}
+          jobManager: new JobManager
+            client: _.bindAll new RedisNS 'ns', redis.createClient(@redisId)
+            timeoutSeconds: 1
 
   shutItDown: (callback) =>
     @connection.close()
@@ -72,8 +73,12 @@ class Connect
       port: 0xcafe
       uuid: 'masseuse'
       token: 'assassin'
+      options: transports: ['websocket']
 
-    @connection.on 'notReady', (error) => throw error
+    @connection.on 'notReady', (error) =>
+      console.error error.stack
+      throw error
+
     callback()
 
   authenticateConnection: (callback) =>
