@@ -49,12 +49,16 @@ class SocketIOHandler
       @upstream.on 'ready', @onUpstreamReady
       @upstream.on 'notReady', (response) =>
         @socket.emit 'notReady', response
+      @upstream.on 'connect_error', @onUpstreamConnectError
       @upstream.on 'config', @onUpstreamConfig
       @upstream.socket.on 'data', @onUpstreamData # data is not proxied by meshblu-npm
       @upstream.on 'message', @onUpstreamMessage
 
   onUpstreamConfig: (message) =>
     @socket.emit 'config', message
+
+  onUpstreamConnectError: (message) =>
+    @socket.emit 'connect_error', message
 
   onUpstreamData: (message) =>
     @socket.emit 'data', message
