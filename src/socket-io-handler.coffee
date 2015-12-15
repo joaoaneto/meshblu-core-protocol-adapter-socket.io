@@ -43,6 +43,7 @@ class SocketIOHandler
         port: @meshbluConfig.port
         uuid: @auth.uuid
         token: @auth.token
+        options: transports: ['websocket']
 
       @upstream.once 'ready', @setupUpstream
       @upstream.on 'ready', @onUpstreamReady
