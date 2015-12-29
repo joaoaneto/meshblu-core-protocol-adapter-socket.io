@@ -3,6 +3,7 @@ http = require 'http'
 PooledJobManager = require './pooled-job-manager'
 AuthenticateHandler = require './handlers/authenticate-handler'
 IdentityAuthenticateHandler = require './handlers/identity-authenticate-handler'
+RevokeTokenByQuery = require './handlers/revoke-token-by-query-handler'
 UpdateAsHandler = require './handlers/update-as-handler'
 WhoamiHandler = require './handlers/whoami-handler'
 SendMessageHandler = require './handlers/send-message-handler'
@@ -78,6 +79,7 @@ class SocketIOHandler
 
     @socket.on 'authenticate', @handlerHandler AuthenticateHandler
     @socket.on 'message', @handlerHandler SendMessageHandler
+    @socket.on 'revokeTokenByQuery', @handlerHandler RevokeTokenByQuery
     @socket.on 'updateas', @handlerHandler UpdateAsHandler
     @socket.on 'whoami', @handlerHandler WhoamiHandler
 
