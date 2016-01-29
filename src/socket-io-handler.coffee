@@ -30,14 +30,15 @@ class SocketIOHandler
     @upstream?.close()
 
   onIdentity: (auth) =>
-    @auth = _.pick auth, 'uuid', 'token'
+    @auth = _.pick auth, 'uuid', 'token', 'auto_set_online'
     authenticate = @handlerHandler IdentityAuthenticateHandler
     authenticate @auth, (error, response) =>
       return @_emitNotReady 504, @auth if error?
       return @_emitNotReady 401, @auth unless response.metadata.code == 204
 
+      auto_set_online = @auth.auto_set_online ? @meshbluConfig.auto_set_online
       @upstream = _.bindAll meshblu.createConnection
-        auto_set_online: @meshbluConfig.auto_set_online
+        auto_set_online: auto_set_online
         bufferRate: 0
         skip_resubscribe_on_reconnect: true
         server: @meshbluConfig.server
