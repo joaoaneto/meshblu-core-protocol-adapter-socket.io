@@ -1,7 +1,5 @@
 _             = require 'lodash'
 redis         = require 'redis'
-{Pool}        = require 'generic-pool'
-RedisNS       = require '@octoblu/redis-ns'
 Server        = require './src/server'
 MeshbluConfig = require 'meshblu-config'
 
@@ -9,18 +7,26 @@ class Command
   constructor: ->
     port = process.env.PORT ? 80
     namespace = process.env.NAMESPACE ? 'meshblu'
-    redisMaxConnections = process.env.REDIS_MAX_CONNECTIONS ? 100
-    redisMaxConnections = parseInt redisMaxConnections
-    timeoutSeconds = process.env.JOB_TIMEOUT_SECONDS ? 30
-    timeoutSeconds = parseInt timeoutSeconds
+    jobLogRedisUri  = process.env.JOB_LOG_REDIS_URI
+    jobLogQueue  = process.env.JOB_LOG_QUEUE
+    connectionPoolMaxConnections = parseInt(process.env.REDIS_MAX_CONNECTIONS ? 100)
+    timeoutSeconds = parseInt(process.env.JOB_TIMEOUT_SECONDS ? 30)
     redisUri  = process.env.REDIS_URI
     meshbluConfig = new MeshbluConfig().toJSON()
-    pool = @buildPool {namespace, redisUri, redisMaxConnections}
 
-    @server = new Server {port, pool, meshbluConfig, timeoutSeconds}
+    @server = new Server {
+      port
+      namespace
+      meshbluConfig
+      jobTimeoutSeconds: timeoutSeconds
+      jobLogRedisUri
+      jobLogQueue
+      redisUri
+      connectionPoolMaxConnections
+    }
 
   run: =>
-    @server.start (error) =>
+    @server.run (error) =>
       return @panic error if error?
       {address,port} = @server.address()
       console.log "listening on #{address}:#{port}"
@@ -28,16 +34,6 @@ class Command
       console.log 'SIGTERM received, shutting down...'
       @server.stop =>
         process.exit 0
-
-  buildPool: ({namespace, redisUri, redisMaxConnections}) =>
-    pool = new Pool
-      max: redisMaxConnections
-      min: 0
-      create: (callback) =>
-        client = _.bindAll new RedisNS namespace, redis.createClient(redisUri)
-        callback null, client
-      destroy: (client) =>
-        client.end true
 
   panic: (error) =>
     console.error error.stack

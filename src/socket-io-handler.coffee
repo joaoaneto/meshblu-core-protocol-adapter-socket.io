@@ -1,6 +1,5 @@
 _ = require 'lodash'
 http = require 'http'
-PooledJobManager = require './pooled-job-manager'
 AuthenticateHandler = require './handlers/authenticate-handler'
 IdentityAuthenticateHandler = require './handlers/identity-authenticate-handler'
 RevokeTokenByQuery = require './handlers/revoke-token-by-query-handler'
@@ -10,9 +9,7 @@ SendMessageHandler = require './handlers/send-message-handler'
 meshblu = require 'meshblu'
 
 class SocketIOHandler
-  constructor: (options) ->
-    {@socket,@pool,@timeoutSeconds,@meshbluConfig} = options
-    @jobManager = new PooledJobManager {@pool, @timeoutSeconds}
+  constructor: ({@socket,@jobManager,@meshbluConfig}) ->
 
   handlerHandler: (handlerClass) =>
     (data, callback) =>
@@ -37,7 +34,7 @@ class SocketIOHandler
       return @_emitNotReady 401, @auth unless response.metadata.code == 204
 
       auto_set_online = @auth.auto_set_online ? @meshbluConfig.auto_set_online
-      @upstream = _.bindAll meshblu.createConnection
+      @upstream = meshblu.createConnection
         auto_set_online: auto_set_online
         bufferRate: 0
         skip_resubscribe_on_reconnect: true
@@ -46,6 +43,8 @@ class SocketIOHandler
         uuid: @auth.uuid
         token: @auth.token
         options: transports: ['websocket']
+
+      @upstream = _.bindAll @upstream, _.functionsIn(@upstream)
 
       @upstream.once 'ready', @setupUpstream
       @upstream.on 'ready', @onUpstreamReady

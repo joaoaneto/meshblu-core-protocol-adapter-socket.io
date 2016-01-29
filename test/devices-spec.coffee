@@ -1,8 +1,14 @@
 Connect = require './connect'
 async = require 'async'
 _ = require 'lodash'
+redis = require 'redis'
+RedisNS = require '@octoblu/redis-ns'
 
 describe 'Socket.io v1', ->
+  beforeEach (done) ->
+    client = new RedisNS 'ns', redis.createClient()
+    client.del 'request:queue', done
+
   beforeEach (done) ->
     @connect = new Connect
     @connect.connect (error, things)=>

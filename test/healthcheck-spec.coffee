@@ -3,7 +3,7 @@ Server  = require '../src/server'
 uuid    = require 'uuid'
 url     = require 'url'
 request = require 'request'
-redis   = require 'fakeredis'
+redis   = require 'redis'
 RedisNS = require '@octoblu/redis-ns'
 
 describe 'healthcheck', ->
@@ -12,13 +12,14 @@ describe 'healthcheck', ->
 
     @sut = new Server
       port: 0xcafe
-      client: _.bindAll new RedisNS 'ns', redis.createClient(@redisId)
-      timeoutSeconds: 1
+      jobTimeoutSeconds: 1
       meshbluConfig:
         server: 'localhost'
         port:   0xbabe
+      jobLogRedisUri: 'redis://localhost'
+      redisUri: 'redis://localhost'
 
-    @sut.start done
+    @sut.run done
 
   afterEach (done) ->
     @sut.stop done

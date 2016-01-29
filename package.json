@@ -1,6 +1,6 @@
 {
   "name": "meshblu-server-socket.io-v1",
-  "version": "1.11.2",
+  "version": "1.11.3",
   "description": "Meshblu server for socket.io v1",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,6 @@
     "chai-subset": "^1.1.0",
     "coffee-coverage": "^0.7.0",
     "coffee-script": "^1.10.0",
-    "fakeredis": "^0.3.4",
     "istanbul": "^0.4.0",
     "mocha": "^2.3.3",
     "mocha-istanbul": "^0.2.0",
@@ -34,9 +33,10 @@
     "uuid": "^2.0.1"
   },
   "dependencies": {
-    "@octoblu/redis-ns": "^0.1.1",
-    "generic-pool": "^2.2.1",
+    "@octoblu/redis-ns": "^1.2.0",
+    "generic-pool": "^2.4.0",
     "job-logger": "^1.2.0",
+    "lodash": "^4.1.0",
     "meshblu": "^1.31.3",
     "meshblu-config": "^3.1.1",
     "meshblu-core-job-manager": "^3.1.4",

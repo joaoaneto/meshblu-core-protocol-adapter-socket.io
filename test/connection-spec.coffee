@@ -1,40 +1,34 @@
 _ = require 'lodash'
 meshblu = require 'meshblu'
 async = require 'async'
-uuid    = require 'uuid'
-redis = require 'fakeredis'
+redis = require 'redis'
 RedisNS = require '@octoblu/redis-ns'
 Server = require '../src/server'
 JobManager = require 'meshblu-core-job-manager'
-{Pool} = require 'generic-pool'
 UpstreamMeshbluServer = require './upstream-meshblu-server'
-
 
 describe 'Socket.io v1', ->
   beforeEach (done) ->
-    @redisId = uuid.v1()
+    client = new RedisNS 'ns', redis.createClient()
+    client.del 'request:queue', done
 
+  beforeEach (done) ->
     @jobManager = new JobManager
-      client: _.bindAll new RedisNS 'ns', redis.createClient(@redisId)
+      client: new RedisNS 'ns', redis.createClient()
       timeoutSeconds: 1
-
-    pool = new Pool
-      max: 1
-      min: 0
-      create: (callback) =>
-        client = _.bindAll new RedisNS 'ns', redis.createClient(@redisId)
-        callback null, client
-      destroy: (client) => client.end true
 
     @sut = new Server
       port: 0xcafe
-      pool: pool
-      timeoutSeconds: 1
+      jobTimeoutSeconds: 1
+      namespace: 'ns'
       meshbluConfig:
         server: 'localhost'
         port:   0xbabe
+      jobLogRedisUri: 'redis://localhost'
+      redisUri: 'redis://localhost'
 
-    @sut.start done
+    @sut.run done
+
 
   beforeEach (done) ->
     @onUpstreamConnection = sinon.spy()
@@ -52,7 +46,7 @@ describe 'Socket.io v1', ->
 
   it 'should create a job in the job queue', (done) ->
     jobManager = new JobManager
-      client: _.bindAll new RedisNS 'ns', redis.createClient(@redisId)
+      client: new RedisNS 'ns', redis.createClient()
       timeoutSeconds: 1
 
     jobManager.getRequest ['request'], (error, request) =>

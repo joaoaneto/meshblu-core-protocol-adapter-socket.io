@@ -1,8 +1,14 @@
 async   = require 'async'
 _       = require 'lodash'
 Connect = require './connect'
+redis = require 'redis'
+RedisNS = require '@octoblu/redis-ns'
 
 describe 'emit: whoami', ->
+  beforeEach (done) ->
+    client = new RedisNS 'ns', redis.createClient()
+    client.del 'request:queue', done
+
   beforeEach (done) ->
     @connect = new Connect
     @connect.connect (error, things) =>

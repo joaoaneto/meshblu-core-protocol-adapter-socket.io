@@ -1,19 +1,16 @@
 _ = require 'lodash'
 meshblu = require 'meshblu'
 async = require 'async'
-uuid    = require 'uuid'
-redis = require 'fakeredis'
+redis = require 'redis'
 RedisNS = require '@octoblu/redis-ns'
-{Pool} = require 'generic-pool'
 JobManager = require 'meshblu-core-job-manager'
 Server = require '../src/server'
 UpstreamMeshbluServer = require './upstream-meshblu-server'
 
 class Connect
   constructor: ->
-    @redisId = uuid.v1()
     @jobManager = new JobManager
-      client: _.bindAll new RedisNS 'ns', redis.createClient(@redisId)
+      client: new RedisNS 'ns', redis.createClient()
       timeoutSeconds: 1
 
   connect: (callback) =>
@@ -32,7 +29,7 @@ class Connect
           upstreamSocket: @upstreamSocket
           device: {uuid: 'masseuse', token: 'assassin'}
           jobManager: new JobManager
-            client: _.bindAll new RedisNS 'ns', redis.createClient(@redisId)
+            client: new RedisNS 'ns', redis.createClient()
             timeoutSeconds: 1
 
   shutItDown: (callback) =>
@@ -44,23 +41,18 @@ class Connect
     ], callback
 
   startServer: (callback) =>
-    pool = new Pool
-      max: 1
-      min: 0
-      create: (callback) =>
-        client = _.bindAll new RedisNS 'ns', redis.createClient(@redisId)
-        callback null, client
-      destroy: (client) => client.end true
-
     @sut = new Server
       port: 0xcafe
-      pool: pool
-      timeoutSeconds: 1
+      jobTimeoutSeconds: 1
       meshbluConfig:
         server: 'localhost'
         port:   0xbabe
+      jobLogRedisUri: 'redis://localhost'
+      redisUri: 'redis://localhost'
+      jobLogQueue: 'junk'
+      namespace: 'ns'
 
-    @sut.start callback
+    @sut.run callback
 
   startUpstream: (callback) =>
     @onUpstreamConnection = sinon.spy()

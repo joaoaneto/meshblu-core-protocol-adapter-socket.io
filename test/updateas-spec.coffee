@@ -1,8 +1,14 @@
 async   = require 'async'
 _       = require 'lodash'
 Connect = require './connect'
+redis = require 'redis'
+RedisNS = require '@octoblu/redis-ns'
 
 describe 'updateas', ->
+  beforeEach (done) ->
+    client = new RedisNS 'ns', redis.createClient()
+    client.del 'request:queue', done
+
   beforeEach (done) ->
     @connect = new Connect
     @connect.connect (error, things) =>
@@ -87,6 +93,7 @@ describe 'updateas', ->
 
       describe 'when the job never responds', ->
         it 'should call the callback with the response', (done) ->
+          @timeout 3000
           onResponseCalled = => @onResponse.called
           wait = (callback) => _.delay callback, 10
 
