@@ -1,6 +1,6 @@
 {
   "name": "meshblu-server-socket.io-v1",
-  "version": "1.11.5",
+  "version": "1.11.6",
   "description": "Meshblu server for socket.io v1",
   "main": "index.js",
   "scripts": {
@@ -35,7 +35,7 @@
   "dependencies": {
     "@octoblu/redis-ns": "^1.2.0",
     "generic-pool": "^2.4.0",
-    "job-logger": "^1.2.0",
+    "job-logger": "^1.2.2",
     "lodash": "^4.1.0",
     "meshblu": "^1.31.3",
     "meshblu-config": "^3.1.1",
