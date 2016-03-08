@@ -4,6 +4,7 @@ AuthenticateHandler = require './handlers/authenticate-handler'
 IdentityAuthenticateHandler = require './handlers/identity-authenticate-handler'
 RevokeTokenByQuery = require './handlers/revoke-token-by-query-handler'
 UpdateAsHandler = require './handlers/update-as-handler'
+UpdateHandler = require './handlers/update-handler'
 WhoamiHandler = require './handlers/whoami-handler'
 SendMessageHandler = require './handlers/send-message-handler'
 meshblu = require 'meshblu'
@@ -80,6 +81,7 @@ class SocketIOHandler
     @socket.on 'authenticate', @handlerHandler AuthenticateHandler
     @socket.on 'message', @handlerHandler SendMessageHandler
     @socket.on 'revokeTokenByQuery', @handlerHandler RevokeTokenByQuery
+    @socket.on 'update', @handlerHandler UpdateHandler
     @socket.on 'updateas', @handlerHandler UpdateAsHandler
     @socket.on 'whoami', @handlerHandler WhoamiHandler
 
