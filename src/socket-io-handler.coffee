@@ -1,13 +1,14 @@
-_ = require 'lodash'
-http = require 'http'
-AuthenticateHandler = require './handlers/authenticate-handler'
+_                           = require 'lodash'
+http                        = require 'http'
+meshblu                     = require 'meshblu'
+AuthenticateHandler         = require './handlers/authenticate-handler'
 IdentityAuthenticateHandler = require './handlers/identity-authenticate-handler'
-RevokeTokenByQuery = require './handlers/revoke-token-by-query-handler'
-UpdateAsHandler = require './handlers/update-as-handler'
-UpdateHandler = require './handlers/update-handler'
-WhoamiHandler = require './handlers/whoami-handler'
-SendMessageHandler = require './handlers/send-message-handler'
-meshblu = require 'meshblu'
+RevokeTokenByQuery          = require './handlers/revoke-token-by-query-handler'
+UpdateAsHandler             = require './handlers/update-as-handler'
+UpdateHandler               = require './handlers/update-handler'
+WhoamiHandler               = require './handlers/whoami-handler'
+SendMessageHandler          = require './handlers/send-message-handler'
+StatusHandler               = require './handlers/status-handler'
 
 class SocketIOHandler
   constructor: ({@socket,@jobManager,@meshbluConfig}) ->
@@ -84,6 +85,7 @@ class SocketIOHandler
     @socket.on 'update', @handlerHandler UpdateHandler
     @socket.on 'updateas', @handlerHandler UpdateAsHandler
     @socket.on 'whoami', @handlerHandler WhoamiHandler
+    @socket.on 'status', @handlerHandler StatusHandler
 
     @socket.on 'claimdevice', @upstream.claimdevice
     @socket.on 'data', @upstream.data
@@ -98,7 +100,6 @@ class SocketIOHandler
     @socket.on 'register', @upstream.register
     @socket.on 'resetToken', @upstream.resetToken
     @socket.on 'revokeToken', @upstream.revokeToken
-    @socket.on 'status', @upstream.status
     @socket.on 'subscribe', @upstream.subscribe
     @socket.on 'unclaimeddevices', @upstream.unclaimeddevices
     @socket.on 'unregister', @upstream.unregister
