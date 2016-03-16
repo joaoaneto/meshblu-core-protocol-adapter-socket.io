@@ -6,9 +6,10 @@ IdentityAuthenticateHandler = require './handlers/identity-authenticate-handler'
 RevokeTokenByQuery          = require './handlers/revoke-token-by-query-handler'
 UpdateAsHandler             = require './handlers/update-as-handler'
 UpdateHandler               = require './handlers/update-handler'
-WhoamiHandler               = require './handlers/whoami-handler'
+RegisterDeviceHandler       = require './handlers/register-device-handler'
 SendMessageHandler          = require './handlers/send-message-handler'
 StatusHandler               = require './handlers/status-handler'
+WhoamiHandler               = require './handlers/whoami-handler'
 
 class SocketIOHandler
   constructor: ({@socket,@jobManager,@meshbluConfig}) ->
@@ -86,6 +87,7 @@ class SocketIOHandler
     @socket.on 'updateas', @handlerHandler UpdateAsHandler
     @socket.on 'whoami', @handlerHandler WhoamiHandler
     @socket.on 'status', @handlerHandler StatusHandler
+    @socket.on 'register', @handlerHandler RegisterDeviceHandler
 
     @socket.on 'claimdevice', @upstream.claimdevice
     @socket.on 'data', @upstream.data
@@ -97,7 +99,6 @@ class SocketIOHandler
     @socket.on 'getPublicKey', @upstream.getPublicKey
     @socket.on 'localdevices', @upstream.localdevices
     @socket.on 'mydevices', @upstream.mydevices
-    @socket.on 'register', @upstream.register
     @socket.on 'resetToken', @upstream.resetToken
     @socket.on 'revokeToken', @upstream.revokeToken
     @socket.on 'subscribe', @upstream.subscribe
