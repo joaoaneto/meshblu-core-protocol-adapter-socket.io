@@ -12,6 +12,7 @@ class Server
     {@disableLogging, @port, @meshbluConfig} = options
     {@connectionPoolMaxConnections, @redisUri, @namespace, @jobTimeoutSeconds} = options
     {@jobLogRedisUri, @jobLogQueue} = options
+    throw new Error('need a jobLogQueue') unless @jobLogQueue?
 
   address: =>
     @server.address()

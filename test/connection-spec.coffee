@@ -26,6 +26,7 @@ describe 'Socket.io v1', ->
         port:   0xbabe
       jobLogRedisUri: 'redis://localhost'
       redisUri: 'redis://localhost'
+      jobLogQueue: 'jobz'
 
     @sut.run done
 

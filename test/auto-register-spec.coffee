@@ -30,6 +30,7 @@ describe 'Auto Register', ->
         port:   0xbabe
       jobLogRedisUri: 'redis://localhost'
       redisUri: 'redis://localhost'
+      jobLogQueue: 'jobz'
 
     @sut.run done
 
