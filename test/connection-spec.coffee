@@ -146,7 +146,7 @@ describe 'Socket.io v1', ->
           response =
             metadata:
               responseId: @request.metadata.responseId
-              code: 403
+              code: 401
 
           @jobManager.createResponse 'response', response, done
 

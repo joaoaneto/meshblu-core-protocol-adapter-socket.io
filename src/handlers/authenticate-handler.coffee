@@ -16,7 +16,7 @@ class AuthenticateHandler
       return callback error: error.message if error?
       if response.metadata.code == 204
         return callback uuid: data.uuid, authentication: true
-      if response.metadata.code == 403
+      if response.metadata.code == 401
         return callback uuid: data.uuid, authentication: false
 
       callback error: response.metadata.status, code: response.metadata.code
