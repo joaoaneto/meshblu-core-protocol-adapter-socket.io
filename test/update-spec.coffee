@@ -41,7 +41,7 @@ describe 'update', ->
               token: @device.token
             jobType: 'UpdateDevice'
             toUuid: @device.uuid
-          rawData: '{"shock":"you will not believe it"}'
+          rawData: '{"$set":{"shock":"you will not believe it"}}'
 
       describe 'when the job responds with success', ->
         beforeEach (done) ->

@@ -4,7 +4,7 @@ Connect = require './connect'
 redis = require 'redis'
 RedisNS = require '@octoblu/redis-ns'
 
-describe 'updateas', ->
+describe 'emit: claimdevice', ->
   beforeEach (done) ->
     client = new RedisNS 'ns', redis.createClient()
     client.del 'request:queue', done
@@ -22,13 +22,9 @@ describe 'updateas', ->
   describe 'when called', ->
     beforeEach ->
       request =
-        metadata:
-          fromUuid: 'sink-hole'
-          toUuid: @device.uuid
-        data:
-          shock: 'you will not believe it'
+        uuid: @device.uuid
 
-      @connection.socket.emit 'updateas', request, @onResponse = sinon.spy()
+      @connection.socket.emit 'claimdevice', request, @onResponse = sinon.spy()
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
@@ -43,9 +39,8 @@ describe 'updateas', ->
               uuid: @device.uuid
               token: @device.token
             jobType: 'UpdateDevice'
-            fromUuid: 'sink-hole'
             toUuid: @device.uuid
-          rawData: '{"$set":{"shock":"you will not believe it"}}'
+          rawData: '{"$set":{"owner":"masseuse"},"$addToSet":{"discoverWhitelist":"masseuse","configureWhitelist":"masseuse"}}'
 
       describe 'when the job responds with success', ->
         beforeEach (done) ->
@@ -54,6 +49,7 @@ describe 'updateas', ->
               responseId: @request.metadata.responseId
               code: 204
               status: 'No Content'
+            rawData: '{"metadata":{"code":204,"status":"No Content"}}'
 
           @jobManager.createResponse 'response', response, done
 
@@ -64,43 +60,6 @@ describe 'updateas', ->
           async.until onResponseCalled, wait, =>
             [response] = @onResponse.firstCall.args
             expect(response).to.containSubset
-              metadata:
-                code: 204
-                status: 'No Content'
-            done()
-
-      describe 'when the job responds with failure', ->
-        beforeEach (done) ->
-          response =
-            metadata:
-              responseId: @request.metadata.responseId
-              code: 422
-              status: 'No Content'
-
-          @jobManager.createResponse 'response', response, done
-
-        it 'should call the callback with the response', (done) ->
-          onResponseCalled = => @onResponse.called
-          wait = (callback) => _.delay callback, 10
-
-          async.until onResponseCalled, wait, =>
-            [response] = @onResponse.firstCall.args
-            expect(response).to.containSubset
-              metadata:
-                code: 422
-                status: 'No Content'
-            done()
-
-      describe 'when the job never responds', ->
-        it 'should call the callback with the response', (done) ->
-          @timeout 3000
-          onResponseCalled = => @onResponse.called
-          wait = (callback) => _.delay callback, 10
-
-          async.until onResponseCalled, wait, =>
-            [response] = @onResponse.firstCall.args
-            expect(response).to.containSubset
-              metadata:
-                code: 504
-                status: 'Gateway Timeout'
+              status: 200
+              uuid: 'masseuse'
             done()

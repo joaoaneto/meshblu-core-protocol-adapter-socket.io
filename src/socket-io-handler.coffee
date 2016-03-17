@@ -2,6 +2,7 @@ _                           = require 'lodash'
 http                        = require 'http'
 meshblu                     = require 'meshblu'
 AuthenticateHandler         = require './handlers/authenticate-handler'
+ClaimDeviceHandler          = require './handlers/claimdevice-handler'
 DevicesHandler              = require './handlers/devices-handler'
 MyDevicesHandler            = require './handlers/mydevices-handler'
 IdentityAuthenticateHandler = require './handlers/identity-authenticate-handler'
@@ -94,8 +95,8 @@ class SocketIOHandler
     @socket.on 'unregister', @handlerHandler UnregisterDeviceHandler
     @socket.on 'devices', @handlerHandler DevicesHandler
     @socket.on 'mydevices', @handlerHandler MyDevicesHandler
+    @socket.on 'claimdevice', @handlerHandler ClaimDeviceHandler
 
-    @socket.on 'claimdevice', @upstream.claimdevice
     @socket.on 'data', @upstream.data
     @socket.on 'device', @upstream.device
     @socket.on 'events', @upstream.events
@@ -106,7 +107,6 @@ class SocketIOHandler
     @socket.on 'revokeToken', @upstream.revokeToken
     @socket.on 'subscribe', @upstream.subscribe
     @socket.on 'unsubscribe', @upstream.unsubscribe
-    @socket.on 'update', @upstream.update
 
   _emitNotReady: (code, auth) =>
     @socket.emit 'notReady',

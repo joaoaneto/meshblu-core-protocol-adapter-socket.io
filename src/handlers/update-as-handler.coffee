@@ -10,7 +10,8 @@ class UpdateAsHandler
         toUuid: request.metadata.toUuid
         fromUuid: request.metadata.fromUuid
         auth: @auth
-      data: request.data
+      data:
+        $set: request.data
 
     @jobManager.do @requestQueue, @responseQueue, updateDeviceRequest, (error, response) =>
       return callback metadata: {code: 504, status: http.STATUS_CODES[504]} if error?
