@@ -2,14 +2,16 @@ _                           = require 'lodash'
 http                        = require 'http'
 meshblu                     = require 'meshblu'
 AuthenticateHandler         = require './handlers/authenticate-handler'
+DevicesHandler              = require './handlers/devices-handler'
+MyDevicesHandler            = require './handlers/mydevices-handler'
 IdentityAuthenticateHandler = require './handlers/identity-authenticate-handler'
-RevokeTokenByQuery          = require './handlers/revoke-token-by-query-handler'
-UpdateAsHandler             = require './handlers/update-as-handler'
-UpdateHandler               = require './handlers/update-handler'
 RegisterDeviceHandler       = require './handlers/register-device-handler'
+RevokeTokenByQuery          = require './handlers/revoke-token-by-query-handler'
 SendMessageHandler          = require './handlers/send-message-handler'
 StatusHandler               = require './handlers/status-handler'
 UnregisterDeviceHandler     = require './handlers/unregister-device-handler'
+UpdateAsHandler             = require './handlers/update-as-handler'
+UpdateHandler               = require './handlers/update-handler'
 WhoamiHandler               = require './handlers/whoami-handler'
 
 class SocketIOHandler
@@ -90,21 +92,19 @@ class SocketIOHandler
     @socket.on 'status', @handlerHandler StatusHandler
     @socket.on 'register', @handlerHandler RegisterDeviceHandler
     @socket.on 'unregister', @handlerHandler UnregisterDeviceHandler
+    @socket.on 'devices', @handlerHandler DevicesHandler
+    @socket.on 'mydevices', @handlerHandler MyDevicesHandler
 
     @socket.on 'claimdevice', @upstream.claimdevice
     @socket.on 'data', @upstream.data
     @socket.on 'device', @upstream.device
-    @socket.on 'devices', @upstream.devices
     @socket.on 'events', @upstream.events
     @socket.on 'generateAndStoreToken', @upstream.generateAndStoreToken
     @socket.on 'getdata', @upstream.getdata
     @socket.on 'getPublicKey', @upstream.getPublicKey
-    @socket.on 'localdevices', @upstream.localdevices
-    @socket.on 'mydevices', @upstream.mydevices
     @socket.on 'resetToken', @upstream.resetToken
     @socket.on 'revokeToken', @upstream.revokeToken
     @socket.on 'subscribe', @upstream.subscribe
-    @socket.on 'unclaimeddevices', @upstream.unclaimeddevices
     @socket.on 'unsubscribe', @upstream.unsubscribe
     @socket.on 'update', @upstream.update
 

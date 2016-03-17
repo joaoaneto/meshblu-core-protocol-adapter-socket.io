@@ -4,7 +4,7 @@ Connect = require './connect'
 redis   = require 'redis'
 RedisNS = require '@octoblu/redis-ns'
 
-describe 'emit: devices', ->
+describe 'emit: mydevices', ->
   beforeEach (done) ->
     client = new RedisNS 'ns', redis.createClient()
     client.del 'request:queue', done
@@ -21,7 +21,7 @@ describe 'emit: devices', ->
 
   describe 'when called', ->
     beforeEach ->
-      @connection.socket.emit 'devices', {type:'google-it'}, @onResponse = sinon.spy()
+      @connection.socket.emit 'mydevices', {type:'google-it'}, @onResponse = sinon.spy()
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
@@ -37,7 +37,7 @@ describe 'emit: devices', ->
               token: @device.token
             jobType: 'SearchDevices'
             fromUuid: 'masseuse'
-          rawData: '{"type":"google-it"}'
+          rawData: '{"type":"google-it","owner":"masseuse"}'
 
       describe 'when the job responds with success', ->
         beforeEach (done) ->
@@ -69,7 +69,7 @@ describe 'emit: devices', ->
 
   describe 'when called with uuid and token', ->
     beforeEach ->
-      @connection.socket.emit 'devices', {uuid: 'great-scott', token: 'great-token'}, @onResponse = sinon.spy()
+      @connection.socket.emit 'mydevices', {uuid: 'great-scott', token: 'great-token'}, @onResponse = sinon.spy()
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
@@ -85,7 +85,7 @@ describe 'emit: devices', ->
               token: 'great-token'
             jobType: 'SearchDevices'
             fromUuid: 'great-scott'
-          rawData: '{"uuid":"great-scott"}'
+          rawData: '{"uuid":"great-scott","owner":"great-scott"}'
 
       describe 'when the job responds with success', ->
         beforeEach (done) ->
