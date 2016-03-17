@@ -9,6 +9,7 @@ UpdateHandler               = require './handlers/update-handler'
 RegisterDeviceHandler       = require './handlers/register-device-handler'
 SendMessageHandler          = require './handlers/send-message-handler'
 StatusHandler               = require './handlers/status-handler'
+UnregisterDeviceHandler     = require './handlers/unregister-device-handler'
 WhoamiHandler               = require './handlers/whoami-handler'
 
 class SocketIOHandler
@@ -88,6 +89,7 @@ class SocketIOHandler
     @socket.on 'whoami', @handlerHandler WhoamiHandler
     @socket.on 'status', @handlerHandler StatusHandler
     @socket.on 'register', @handlerHandler RegisterDeviceHandler
+    @socket.on 'unregister', @handlerHandler UnregisterDeviceHandler
 
     @socket.on 'claimdevice', @upstream.claimdevice
     @socket.on 'data', @upstream.data
@@ -103,7 +105,6 @@ class SocketIOHandler
     @socket.on 'revokeToken', @upstream.revokeToken
     @socket.on 'subscribe', @upstream.subscribe
     @socket.on 'unclaimeddevices', @upstream.unclaimeddevices
-    @socket.on 'unregister', @upstream.unregister
     @socket.on 'unsubscribe', @upstream.unsubscribe
     @socket.on 'update', @upstream.update
 
