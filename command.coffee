@@ -13,6 +13,7 @@ class Command
     connectionPoolMaxConnections = parseInt(process.env.REDIS_MAX_CONNECTIONS ? 100)
     timeoutSeconds = parseInt(process.env.JOB_TIMEOUT_SECONDS ? 30)
     redisUri  = process.env.REDIS_URI
+    aliasServerUri = process.env.ALIAS_SERVER_URI
     meshbluConfig = new MeshbluConfig().toJSON()
 
     @server = new Server {
@@ -25,6 +26,7 @@ class Command
       jobLogSampleRate
       redisUri
       connectionPoolMaxConnections
+      aliasServerUri
     }
 
   run: =>
