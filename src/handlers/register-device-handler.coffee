@@ -6,6 +6,8 @@ class RegisterDeviceHandler
     data.configureWhitelist = [data.owner] if data.owner?
     data.discoverWhitelist = ['*'] unless data.discoverWhitelist?
     data.configureWhitelist = ['*'] unless data.configureWhitelist?
+    data.sendWhitelist = ['*'] unless data.sendWhitelist?
+    data.receiveWhitelist = ['*'] unless data.receiveWhitelist?
 
     request =
       metadata:

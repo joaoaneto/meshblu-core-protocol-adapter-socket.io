@@ -33,7 +33,7 @@ describe 'emit: register', ->
         expect(@request).to.containSubset
           metadata:
             jobType: 'RegisterDevice'
-          rawData: '{"type":"yo","discoverWhitelist":["*"],"configureWhitelist":["*"]}'
+          rawData: '{"type":"yo","discoverWhitelist":["*"],"configureWhitelist":["*"],"sendWhitelist":["*"],"receiveWhitelist":["*"]}'
 
       describe 'when the job responds with success', ->
         beforeEach (done) ->
@@ -75,7 +75,7 @@ describe 'emit: register', ->
         expect(@request).to.containSubset
           metadata:
             jobType: 'RegisterDevice'
-          rawData: '{"owner":"yo-uuid","discoverWhitelist":["yo-uuid"],"configureWhitelist":["yo-uuid"]}'
+          rawData: '{"owner":"yo-uuid","discoverWhitelist":["yo-uuid"],"configureWhitelist":["yo-uuid"],"sendWhitelist":["*"],"receiveWhitelist":["*"]}'
 
       describe 'when the job responds with success', ->
         beforeEach (done) ->
