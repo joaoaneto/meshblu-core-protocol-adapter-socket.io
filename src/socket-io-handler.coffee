@@ -1,22 +1,24 @@
-_                           = require 'lodash'
-http                        = require 'http'
-meshblu                     = require 'meshblu'
-AuthenticateHandler         = require './handlers/authenticate-handler'
-ClaimDeviceHandler          = require './handlers/claimdevice-handler'
-DevicesHandler              = require './handlers/devices-handler'
-MyDevicesHandler            = require './handlers/mydevices-handler'
-IdentityAuthenticateHandler = require './handlers/identity-authenticate-handler'
-RegisterDeviceHandler       = require './handlers/register-device-handler'
-RevokeTokenByQuery          = require './handlers/revoke-token-by-query-handler'
-SendMessageHandler          = require './handlers/send-message-handler'
-StatusHandler               = require './handlers/status-handler'
-UnregisterDeviceHandler     = require './handlers/unregister-device-handler'
-UpdateAsHandler             = require './handlers/update-as-handler'
-UpdateHandler               = require './handlers/update-handler'
-WhoamiHandler               = require './handlers/whoami-handler'
+_                                     = require 'lodash'
+async                                 = require 'async'
+http                                  = require 'http'
+meshblu                               = require 'meshblu'
+AuthenticateHandler                   = require './handlers/authenticate-handler'
+ClaimDeviceHandler                    = require './handlers/claimdevice-handler'
+DevicesHandler                        = require './handlers/devices-handler'
+IdentityAuthenticateHandler           = require './handlers/identity-authenticate-handler'
+GetAuthorizedSubscriptionTypesHandler = require './handlers/get-authorized-subscription-types-handler'
+MyDevicesHandler                      = require './handlers/mydevices-handler'
+RegisterDeviceHandler                 = require './handlers/register-device-handler'
+RevokeTokenByQuery                    = require './handlers/revoke-token-by-query-handler'
+SendMessageHandler                    = require './handlers/send-message-handler'
+StatusHandler                         = require './handlers/status-handler'
+UnregisterDeviceHandler               = require './handlers/unregister-device-handler'
+UpdateAsHandler                       = require './handlers/update-as-handler'
+UpdateHandler                         = require './handlers/update-handler'
+WhoamiHandler                         = require './handlers/whoami-handler'
 
 class SocketIOHandler
-  constructor: ({@socket,@jobManager,@meshbluConfig}) ->
+  constructor: ({@socket,@jobManager,@meshbluConfig,@messengerFactory}) ->
 
   handlerHandler: (handlerClass) =>
     (data, callback) =>
@@ -29,6 +31,16 @@ class SocketIOHandler
     @socket.on 'identity', @onIdentity
     @socket.on 'disconnect', @onDisconnect
     @socket.emit 'identify'
+    @messenger = @messengerFactory.build()
+
+    @messenger.on 'message', (channel, message) =>
+      @socket.emit 'message', message
+
+    @messenger.on 'config', (channel, message) =>
+      @socket.emit 'config', message
+
+    @messenger.on 'data', (channel, message) =>
+      @socket.emit 'data', message
 
   onDisconnect: =>
     @upstream?.close()
@@ -58,27 +70,39 @@ class SocketIOHandler
       @upstream.on 'notReady', (response) =>
         @socket.emit 'notReady', response
       @upstream.on 'connect_error', @onUpstreamConnectError
-      @upstream.on 'config', @onUpstreamConfig
-      @upstream.socket.on 'data', @onUpstreamData # data is not proxied by meshblu-npm
-      @upstream.on 'message', @onUpstreamMessage
 
-  onUpstreamConfig: (message) =>
-    @socket.emit 'config', message
+  onSubscribe: (data) =>
+    data.types ?= ['broadcast', 'received', 'sent']
+    requestQueue = 'request'
+    responseQueue = 'response'
+    handler = new GetAuthorizedSubscriptionTypesHandler {@jobManager, @auth, requestQueue, responseQueue}
+    handler.do data, (response) =>
+      async.each response.types, (type, next) =>
+        @messenger.subscribe {type, uuid: data.uuid}, next
+
+  onUnsubscribe: (data) =>
+    data.types ?= ['broadcast', 'received', 'sent']
+    requestQueue = 'request'
+    responseQueue = 'response'
+    handler = new GetAuthorizedSubscriptionTypesHandler {@jobManager, @auth, requestQueue, responseQueue}
+    handler.do data, (response) =>
+      async.each response.types, (type, next) =>
+        # slow down or redis crashes
+        _.delay =>
+          @messenger.unsubscribe {type, uuid: data.uuid}, next
+        , 100
 
   onUpstreamConnectError: (message) =>
     @socket.emit 'connect_error', message
-
-  onUpstreamData: (message) =>
-    @socket.emit 'data', message
-
-  onUpstreamMessage: (message) =>
-    @socket.emit 'message', message
 
   onUpstreamReady: (response) =>
     @auth.uuid  = response.uuid
     @auth.token = response.token
 
     @socket.emit 'ready', response
+
+    async.each ['received', 'config', 'data'], (type, next) =>
+      @messenger.subscribe {type, uuid: @auth.uuid}, next
 
   setupUpstream: (response) =>
     @auth.uuid  = response.uuid
@@ -105,8 +129,8 @@ class SocketIOHandler
     @socket.on 'getPublicKey', @upstream.getPublicKey
     @socket.on 'resetToken', @upstream.resetToken
     @socket.on 'revokeToken', @upstream.revokeToken
-    @socket.on 'subscribe', @upstream.subscribe
-    @socket.on 'unsubscribe', @upstream.unsubscribe
+    @socket.on 'subscribe', @onSubscribe
+    @socket.on 'unsubscribe', @onUnsubscribe
 
   _emitNotReady: (code, auth) =>
     @socket.emit 'notReady',

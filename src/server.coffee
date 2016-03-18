@@ -1,15 +1,18 @@
-http = require 'http'
-SocketIO = require 'socket.io'
-SocketIOHandler = require './socket-io-handler'
-JobLogger = require 'job-logger'
-PooledJobManager = require 'meshblu-core-pooled-job-manager'
-{Pool} = require 'generic-pool'
-redis   = require 'redis'
-RedisNS = require '@octoblu/redis-ns'
+_                 = require 'lodash'
+http              = require 'http'
+SocketIO          = require 'socket.io'
+SocketIOHandler   = require './socket-io-handler'
+JobLogger         = require 'job-logger'
+PooledJobManager  = require 'meshblu-core-pooled-job-manager'
+{Pool}            = require 'generic-pool'
+redis             = require 'redis'
+RedisNS           = require '@octoblu/redis-ns'
+MessengerFactory  = require './messenger-factory'
+UuidAliasResolver = require 'meshblu-uuid-alias-resolver'
 
 class Server
   constructor: (options) ->
-    {@disableLogging, @port, @meshbluConfig} = options
+    {@disableLogging, @port, @meshbluConfig, @aliasServerUri} = options
     {@connectionPoolMaxConnections, @redisUri, @namespace, @jobTimeoutSeconds} = options
     {@jobLogRedisUri, @jobLogQueue, @jobLogSampleRate} = options
     throw new Error('need a jobLogQueue') unless @jobLogQueue?
@@ -34,6 +37,13 @@ class Server
       pool: connectionPool
       jobLogger: jobLogger
 
+    uuidAliasClient = _.bindAll new RedisNS 'uuid-alias', redis.createClient(@redisUri)
+    uuidAliasResolver = new UuidAliasResolver
+      cache: uuidAliasResolver
+      aliasServerUri: @aliasServerUri
+
+    @messengerFactory = new MessengerFactory {uuidAliasResolver, @redisUri, @namespace}
+
     @server.on 'request', @onRequest
     @io = SocketIO @server
     @io.on 'connection', @onConnection
@@ -43,7 +53,7 @@ class Server
     @server.close callback
 
   onConnection: (socket) =>
-    socketIOHandler = new SocketIOHandler {socket, @jobManager, @meshbluConfig}
+    socketIOHandler = new SocketIOHandler {socket, @jobManager, @meshbluConfig, @messengerFactory}
     socketIOHandler.initialize()
 
   onRequest: (request, response) =>
