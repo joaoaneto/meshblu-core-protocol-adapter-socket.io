@@ -4,6 +4,9 @@ class RegisterDeviceHandler
   do: (data={}, callback=->) =>
     data.discoverWhitelist = [data.owner] if data.owner?
     data.configureWhitelist = [data.owner] if data.owner?
+    data.discoverWhitelist = ['*'] unless data.discoverWhitelist?
+    data.configureWhitelist = ['*'] unless data.configureWhitelist?
+
     request =
       metadata:
         jobType: 'RegisterDevice'

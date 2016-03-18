@@ -11,7 +11,6 @@ class UpdateHandler
     auth = _.cloneDeep @auth
     {uuid,token} = data
     data = _.omit data, ['uuid', 'token']
-    auth = {uuid, token} if uuid? and token?
 
     request =
       metadata:

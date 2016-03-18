@@ -33,7 +33,7 @@ describe 'emit: register', ->
         expect(@request).to.containSubset
           metadata:
             jobType: 'RegisterDevice'
-          rawData: '{"type":"yo"}'
+          rawData: '{"type":"yo","discoverWhitelist":["*"],"configureWhitelist":["*"]}'
 
       describe 'when the job responds with success', ->
         beforeEach (done) ->
