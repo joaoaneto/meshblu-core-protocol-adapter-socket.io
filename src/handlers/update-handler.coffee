@@ -8,14 +8,16 @@ class UpdateHandler
     unless _.isPlainObject data
       return callback new Error('invalid update')
 
-    {uuid} = data
+    auth = _.cloneDeep @auth
+    {uuid,token} = data
     data = _.omit data, ['uuid', 'token']
+    auth = {uuid, token} if uuid? and token?
 
     request =
       metadata:
         jobType: 'UpdateDevice'
         toUuid: uuid
-        auth: @auth
+        auth: auth
       data: $set: data
 
     @jobManager.do @requestQueue, @responseQueue, request, (error, response) =>

@@ -9,6 +9,7 @@ class ClaimDeviceHandler
       return callback new Error('invalid update')
 
     {uuid} = data
+    data = _.omit data, ['uuid', 'token']
 
     request =
       metadata:
