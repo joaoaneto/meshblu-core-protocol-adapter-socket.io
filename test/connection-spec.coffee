@@ -27,6 +27,7 @@ describe 'Socket.io v1', ->
       jobLogRedisUri: 'redis://localhost'
       redisUri: 'redis://localhost'
       jobLogQueue: 'jobz'
+      jobLogSampleRate: 0
 
     @sut.run done
 

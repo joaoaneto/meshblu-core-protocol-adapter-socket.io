@@ -9,6 +9,7 @@ class Command
     namespace = process.env.NAMESPACE ? 'meshblu'
     jobLogRedisUri  = process.env.JOB_LOG_REDIS_URI
     jobLogQueue  = process.env.JOB_LOG_QUEUE
+    jobLogSampleRate = parseInt(process.env.JOB_LOG_SAMPLE_RATE)
     connectionPoolMaxConnections = parseInt(process.env.REDIS_MAX_CONNECTIONS ? 100)
     timeoutSeconds = parseInt(process.env.JOB_TIMEOUT_SECONDS ? 30)
     redisUri  = process.env.REDIS_URI
@@ -21,6 +22,7 @@ class Command
       jobTimeoutSeconds: timeoutSeconds
       jobLogRedisUri
       jobLogQueue
+      jobLogSampleRate
       redisUri
       connectionPoolMaxConnections
     }

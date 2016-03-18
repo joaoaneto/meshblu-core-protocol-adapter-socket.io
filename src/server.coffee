@@ -11,8 +11,9 @@ class Server
   constructor: (options) ->
     {@disableLogging, @port, @meshbluConfig} = options
     {@connectionPoolMaxConnections, @redisUri, @namespace, @jobTimeoutSeconds} = options
-    {@jobLogRedisUri, @jobLogQueue} = options
+    {@jobLogRedisUri, @jobLogQueue, @jobLogSampleRate} = options
     throw new Error('need a jobLogQueue') unless @jobLogQueue?
+    throw new Error('need a jobLogSampleRate') unless @jobLogSampleRate?
 
   address: =>
     @server.address()
@@ -26,6 +27,7 @@ class Server
       type: 'meshblu-server-socket.io-v1:request'
       client: redis.createClient(@jobLogRedisUri)
       jobLogQueue: @jobLogQueue
+      sampleRate: @jobLogSampleRate
 
     @jobManager = new PooledJobManager
       timeoutSeconds: @jobTimeoutSeconds

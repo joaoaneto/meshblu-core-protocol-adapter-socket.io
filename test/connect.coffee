@@ -51,6 +51,7 @@ class Connect
       redisUri: 'redis://localhost'
       jobLogQueue: 'junk'
       namespace: 'ns'
+      jobLogSampleRate: 0
 
     @sut.run callback
 
