@@ -92,10 +92,7 @@ class SocketIOHandler
     handler = new GetAuthorizedSubscriptionTypesHandler {@jobManager, @auth, requestQueue, responseQueue}
     handler.do data, (response) =>
       async.each response.types, (type, next) =>
-        # slow down or redis crashes
-        _.delay =>
-          @messenger.unsubscribe {type, uuid: data.uuid}, next
-        , 100
+        @messenger.unsubscribe {type, uuid: data.uuid}, next
 
   onUpstreamConnectError: (message) =>
     @socket.emit 'connect_error', message
