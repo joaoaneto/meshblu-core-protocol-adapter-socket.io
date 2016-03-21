@@ -1,3 +1,4 @@
+_    = require 'lodash'
 http = require 'http'
 
 class ResetTokenHandler
