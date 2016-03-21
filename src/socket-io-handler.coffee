@@ -111,28 +111,26 @@ class SocketIOHandler
     @auth.token = response.token
 
     @socket.on 'authenticate', @handlerHandler AuthenticateHandler
+    @socket.on 'claimdevice', @handlerHandler ClaimDeviceHandler
+    @socket.on 'device', @handlerHandler DeviceHandler
+    @socket.on 'devices', @handlerHandler DevicesHandler
+    @socket.on 'getPublicKey', @handlerHandler GetDevicePublicKeyHandler
     @socket.on 'message', @handlerHandler SendMessageHandler
+    @socket.on 'mydevices', @handlerHandler MyDevicesHandler
+    @socket.on 'register', @handlerHandler RegisterDeviceHandler
+    @socket.on 'resetToken', @handlerHandler ResetTokenHandler
     @socket.on 'revokeTokenByQuery', @handlerHandler RevokeTokenByQuery
+    @socket.on 'status', @handlerHandler StatusHandler
+    @socket.on 'subscribe', @onSubscribe
+    @socket.on 'unregister', @handlerHandler UnregisterDeviceHandler
+    @socket.on 'unsubscribe', @onUnsubscribe
     @socket.on 'update', @handlerHandler UpdateHandler
     @socket.on 'updateas', @handlerHandler UpdateAsHandler
     @socket.on 'whoami', @handlerHandler WhoamiHandler
-    @socket.on 'status', @handlerHandler StatusHandler
-    @socket.on 'register', @handlerHandler RegisterDeviceHandler
-    @socket.on 'unregister', @handlerHandler UnregisterDeviceHandler
-    @socket.on 'devices', @handlerHandler DevicesHandler
-    @socket.on 'mydevices', @handlerHandler MyDevicesHandler
-    @socket.on 'claimdevice', @handlerHandler ClaimDeviceHandler
 
-    @socket.on 'data', @upstream.data
-    @socket.on 'device', @upstream.device
-    @socket.on 'events', @upstream.events
     @socket.on 'generateAndStoreToken', @upstream.generateAndStoreToken
     @socket.on 'getdata', @upstream.getdata
-    @socket.on 'getPublicKey', @upstream.getPublicKey
-    @socket.on 'resetToken', @upstream.resetToken
     @socket.on 'revokeToken', @upstream.revokeToken
-    @socket.on 'subscribe', @onSubscribe
-    @socket.on 'unsubscribe', @onUnsubscribe
 
   _emitNotReady: (code, auth) =>
     @socket.emit 'notReady',
