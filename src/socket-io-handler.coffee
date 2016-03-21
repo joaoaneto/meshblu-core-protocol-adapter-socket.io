@@ -4,6 +4,9 @@ http                                  = require 'http'
 meshblu                               = require 'meshblu'
 AuthenticateHandler                   = require './handlers/authenticate-handler'
 ClaimDeviceHandler                    = require './handlers/claimdevice-handler'
+GetDeviceHandler                      = require './handlers/get-device-handler'
+GetDevicePublicKeyHandler             = require './handlers/get-device-public-key-handler'
+ResetTokenHandler                     = require './handlers/reset-token-handler'
 DevicesHandler                        = require './handlers/devices-handler'
 IdentityAuthenticateHandler           = require './handlers/identity-authenticate-handler'
 GetAuthorizedSubscriptionTypesHandler = require './handlers/get-authorized-subscription-types-handler'
@@ -112,7 +115,7 @@ class SocketIOHandler
 
     @socket.on 'authenticate', @handlerHandler AuthenticateHandler
     @socket.on 'claimdevice', @handlerHandler ClaimDeviceHandler
-    @socket.on 'device', @handlerHandler DeviceHandler
+    @socket.on 'device', @handlerHandler GetDeviceHandler
     @socket.on 'devices', @handlerHandler DevicesHandler
     @socket.on 'getPublicKey', @handlerHandler GetDevicePublicKeyHandler
     @socket.on 'message', @handlerHandler SendMessageHandler
