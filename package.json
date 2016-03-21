@@ -1,11 +1,11 @@
 {
   "name": "meshblu-server-socket.io-v1",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "description": "Meshblu server for socket.io v1",
   "main": "index.js",
   "scripts": {
     "start": "node command.js",
-    "test": "istanbul cover _mocha -- -R spec --require coffee-coverage/register-istanbul"
+    "test": "istanbul cover _mocha -- -R spec --require coffee-coverage/register-istanbul --timeout 3000"
   },
   "repository": {
     "type": "git",
