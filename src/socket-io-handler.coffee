@@ -73,6 +73,8 @@ class SocketIOHandler
 
   onSubscribe: (data) =>
     data.types ?= ['broadcast', 'received', 'sent']
+    data.types.push 'data'
+    data.types.push 'config'
     requestQueue = 'request'
     responseQueue = 'response'
     handler = new GetAuthorizedSubscriptionTypesHandler {@jobManager, @auth, requestQueue, responseQueue}
