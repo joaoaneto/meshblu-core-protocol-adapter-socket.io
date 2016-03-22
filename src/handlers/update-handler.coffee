@@ -12,6 +12,11 @@ class UpdateHandler
     {uuid,token} = data
     data = _.omit data, ['uuid', 'token']
 
+    if token?
+      auth =
+        uuid: uuid
+        token: token
+
     request =
       metadata:
         jobType: 'UpdateDevice'

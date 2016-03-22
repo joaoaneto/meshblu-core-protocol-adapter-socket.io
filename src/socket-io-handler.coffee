@@ -80,14 +80,8 @@ class SocketIOHandler
     data.types.push 'config'
     requestQueue = 'request'
     responseQueue = 'response'
-    auth = _.cloneDeep @auth
-    if data.token?
-      auth =
-        uuid: data.uuid
-        token: data.token
-      delete data.token
 
-    handler = new GetAuthorizedSubscriptionTypesHandler {@jobManager, auth, requestQueue, responseQueue}
+    handler = new GetAuthorizedSubscriptionTypesHandler {@jobManager, @auth, requestQueue, responseQueue}
     handler.do data, (response) =>
       async.each response.types, (type, next) =>
         @messenger.subscribe {type, uuid: data.uuid}, next
@@ -96,14 +90,8 @@ class SocketIOHandler
     data.types ?= ['broadcast', 'received', 'sent']
     requestQueue = 'request'
     responseQueue = 'response'
-    auth = _.cloneDeep @auth
-    if data.token?
-      auth =
-        uuid: data.uuid
-        token: data.token
-      delete data.token
 
-    handler = new GetAuthorizedSubscriptionTypesHandler {@jobManager, auth, requestQueue, responseQueue}
+    handler = new GetAuthorizedSubscriptionTypesHandler {@jobManager, @auth, requestQueue, responseQueue}
     handler.do data, (response) =>
       async.each response.types, (type, next) =>
         @messenger.unsubscribe {type, uuid: data.uuid}, next

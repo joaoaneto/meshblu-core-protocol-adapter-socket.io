@@ -5,11 +5,18 @@ class GetAuthorizedSubscriptionTypesHandler
   constructor: ({@jobManager,@auth,@requestQueue,@responseQueue}) ->
 
   do: (data, callback) =>
+    auth = _.cloneDeep @auth
+    if data.token?
+      auth =
+        uuid: data.uuid
+        token: data.token
+      delete data.token
+
     request =
       metadata:
         jobType: 'GetAuthorizedSubscriptionTypes'
         toUuid: data.uuid
-        auth: @auth
+        auth: auth
       data: data
 
     @jobManager.do @requestQueue, @responseQueue, request, (error, response) =>
