@@ -23,6 +23,7 @@ class GetDeviceHandler
       return callback error: error.message if error?
       return callback error: http.STATUS_CODES[response.metadata.code] unless response.metadata.code == 200
       device = JSON.parse response.rawData
+      delete devices.token
       return callback {device}
 
 module.exports = GetDeviceHandler
