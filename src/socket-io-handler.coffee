@@ -69,7 +69,7 @@ class SocketIOHandler
     @socket.emit 'identify'
 
   onDisconnect: =>
-    @_setOffline() unless @auth.auto_set_online == false
+    @_setOffline() unless @auth?.auto_set_online == false
     @messenger?.close()
 
   onIdentity: (auth) =>

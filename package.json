@@ -1,6 +1,6 @@
 {
   "name": "meshblu-server-socket.io-v1",
-  "version": "6.1.0",
+  "version": "6.1.1",
   "description": "Meshblu server for socket.io v1",
   "main": "index.js",
   "scripts": {
