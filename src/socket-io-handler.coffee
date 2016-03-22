@@ -47,6 +47,7 @@ class SocketIOHandler
 
   onDisconnect: =>
     @upstream?.close()
+    @messenger?.close()
 
   onIdentity: (auth) =>
     @auth = _.pick auth, 'uuid', 'token', 'auto_set_online'
