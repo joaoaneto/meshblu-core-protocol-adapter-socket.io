@@ -5,7 +5,6 @@ class GetAuthorizedSubscriptionTypesHandler
   constructor: ({@jobManager,@auth,@requestQueue,@responseQueue}) ->
 
   do: (data, callback) =>
-
     request =
       metadata:
         jobType: 'GetAuthorizedSubscriptionTypes'

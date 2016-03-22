@@ -80,7 +80,14 @@ class SocketIOHandler
     data.types.push 'config'
     requestQueue = 'request'
     responseQueue = 'response'
-    handler = new GetAuthorizedSubscriptionTypesHandler {@jobManager, @auth, requestQueue, responseQueue}
+    auth = _.cloneDeep @auth
+    if data.token?
+      auth =
+        uuid: data.uuid
+        token: data.token
+      delete data.token
+
+    handler = new GetAuthorizedSubscriptionTypesHandler {@jobManager, auth, requestQueue, responseQueue}
     handler.do data, (response) =>
       async.each response.types, (type, next) =>
         @messenger.subscribe {type, uuid: data.uuid}, next
@@ -89,13 +96,17 @@ class SocketIOHandler
     data.types ?= ['broadcast', 'received', 'sent']
     requestQueue = 'request'
     responseQueue = 'response'
-    handler = new GetAuthorizedSubscriptionTypesHandler {@jobManager, @auth, requestQueue, responseQueue}
+    auth = _.cloneDeep @auth
+    if data.token?
+      auth =
+        uuid: data.uuid
+        token: data.token
+      delete data.token
+
+    handler = new GetAuthorizedSubscriptionTypesHandler {@jobManager, auth, requestQueue, responseQueue}
     handler.do data, (response) =>
       async.each response.types, (type, next) =>
-        # slow down or redis crashes
-        _.delay =>
-          @messenger.unsubscribe {type, uuid: data.uuid}, next
-        , 100
+        @messenger.unsubscribe {type, uuid: data.uuid}, next
 
   onUpstreamConnectError: (message) =>
     @socket.emit 'connect_error', message
@@ -104,10 +115,10 @@ class SocketIOHandler
     @auth.uuid  = response.uuid
     @auth.token = response.token
 
-    @socket.emit 'ready', response
-
     async.each ['received', 'config', 'data'], (type, next) =>
       @messenger.subscribe {type, uuid: @auth.uuid}, next
+
+    @socket.emit 'ready', response
 
   setupUpstream: (response) =>
     @auth.uuid  = response.uuid
