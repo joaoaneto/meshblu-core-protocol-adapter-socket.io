@@ -27,6 +27,7 @@ class SocketIOHandler
 
   handlerHandler: (handlerClass) =>
     (data, callback) =>
+      return callback() unless @auth?
       requestQueue = 'request'
       responseQueue = 'response'
       handler = new handlerClass {@jobManager, @auth, requestQueue, responseQueue}
