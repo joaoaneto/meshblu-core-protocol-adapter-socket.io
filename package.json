@@ -1,6 +1,6 @@
 {
   "name": "meshblu-server-socket.io-v1",
-  "version": "5.2.9",
+  "version": "5.2.10",
   "description": "Meshblu server for socket.io v1",
   "main": "index.js",
   "scripts": {
@@ -42,7 +42,7 @@
     "meshblu": "^1.31.3",
     "meshblu-config": "^3.1.1",
     "meshblu-core-job-manager": "^3.1.4",
-    "meshblu-core-manager-messenger": "^2.0.0",
+    "meshblu-core-manager-messenger": "^2.0.1",
     "meshblu-core-pooled-job-manager": "^1.0.0",
     "meshblu-uuid-alias-resolver": "^1.0.1",
     "redis": "^2.3.0",
