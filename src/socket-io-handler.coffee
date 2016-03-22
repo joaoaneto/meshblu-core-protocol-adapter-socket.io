@@ -120,14 +120,24 @@ class SocketIOHandler
       @_emitReady()
 
   _setOnline: =>
-    @_updateDevice {uuid: @auth.uuid, online: true}, ->
+    @_updateDevice {uuid: @auth.uuid, online: true}
+    @_sendDeviceStatusMessage online: true
 
   _setOffline: =>
-    @_updateDevice {uuid: @auth.uuid, online: false}, ->
+    @_updateDevice {uuid: @auth.uuid, online: false}
+    @_sendDeviceStatusMessage online: false
 
   _updateDevice: (data) =>
     update = @handlerHandler UpdateHandler
-    update data, (response) =>
+    update data, ->
+
+  _sendDeviceStatusMessage: (data) =>
+    message =
+      devices: '*'
+      topic: 'device-status'
+      payload: data
+    sendMessage = @handlerHandler SendMessageHandler
+    sendMessage message, ->
 
   _emitReady: (data) =>
     async.each ['received', 'config', 'data'], (type, next) =>
