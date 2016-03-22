@@ -10,6 +10,7 @@ ResetTokenHandler                     = require './handlers/reset-token-handler'
 DevicesHandler                        = require './handlers/devices-handler'
 IdentityAuthenticateHandler           = require './handlers/identity-authenticate-handler'
 GetAuthorizedSubscriptionTypesHandler = require './handlers/get-authorized-subscription-types-handler'
+CreateSessionTokenHandler             = require './handlers/create-session-token-handler'
 MyDevicesHandler                      = require './handlers/mydevices-handler'
 RegisterDeviceHandler                 = require './handlers/register-device-handler'
 RevokeTokenByQuery                    = require './handlers/revoke-token-by-query-handler'
@@ -118,6 +119,7 @@ class SocketIOHandler
     @socket.on 'device', @handlerHandler GetDeviceHandler
     @socket.on 'devices', @handlerHandler DevicesHandler
     @socket.on 'getPublicKey', @handlerHandler GetDevicePublicKeyHandler
+    @socket.on 'generateAndStoreToken', @handlerHandler CreateSessionTokenHandler
     @socket.on 'message', @handlerHandler SendMessageHandler
     @socket.on 'mydevices', @handlerHandler MyDevicesHandler
     @socket.on 'register', @handlerHandler RegisterDeviceHandler
@@ -131,7 +133,6 @@ class SocketIOHandler
     @socket.on 'updateas', @handlerHandler UpdateAsHandler
     @socket.on 'whoami', @handlerHandler WhoamiHandler
 
-    @socket.on 'generateAndStoreToken', @upstream.generateAndStoreToken
     @socket.on 'getdata', @upstream.getdata
     @socket.on 'revokeToken', @upstream.revokeToken
 
