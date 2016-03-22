@@ -33,9 +33,28 @@ class SocketIOHandler
       handler.do data, callback
 
   initialize: =>
-    @socket.on 'identity', @onIdentity
+    @socket.on 'authenticate', @handlerHandler AuthenticateHandler
+    @socket.on 'claimdevice', @handlerHandler ClaimDeviceHandler
+    @socket.on 'device', @handlerHandler GetDeviceHandler
+    @socket.on 'devices', @handlerHandler DevicesHandler
     @socket.on 'disconnect', @onDisconnect
-    @socket.emit 'identify'
+    @socket.on 'identity', @onIdentity
+    @socket.on 'getPublicKey', @handlerHandler GetDevicePublicKeyHandler
+    @socket.on 'generateAndStoreToken', @handlerHandler CreateSessionTokenHandler
+    @socket.on 'message', @handlerHandler SendMessageHandler
+    @socket.on 'mydevices', @handlerHandler MyDevicesHandler
+    @socket.on 'register', @handlerHandler RegisterDeviceHandler
+    @socket.on 'resetToken', @handlerHandler ResetTokenHandler
+    @socket.on 'revokeToken', @handlerHandler RevokeSessionTokenHandler
+    @socket.on 'revokeTokenByQuery', @handlerHandler RevokeTokenByQueryHandler
+    @socket.on 'status', @handlerHandler StatusHandler
+    @socket.on 'subscribe', @onSubscribe
+    @socket.on 'unregister', @handlerHandler UnregisterDeviceHandler
+    @socket.on 'unsubscribe', @onUnsubscribe
+    @socket.on 'update', @handlerHandler UpdateHandler
+    @socket.on 'updateas', @handlerHandler UpdateAsHandler
+    @socket.on 'whoami', @handlerHandler WhoamiHandler
+
     @messenger = @messengerFactory.build()
 
     @messenger.on 'message', (channel, message) =>
@@ -47,35 +66,23 @@ class SocketIOHandler
     @messenger.on 'data', (channel, message) =>
       @socket.emit 'data', message
 
+    @socket.emit 'identify'
+
   onDisconnect: =>
-    @upstream?.close()
+    @_setOffline() unless @auth.auto_set_online == false
     @messenger?.close()
 
   onIdentity: (auth) =>
+    return @_autoRegister auth unless auth.uuid? && auth.token?
+
     @auth = _.pick auth, 'uuid', 'token', 'auto_set_online'
     authenticate = @handlerHandler IdentityAuthenticateHandler
     authenticate @auth, (error, response) =>
       return @_emitNotReady 504, @auth if error?
       return @_emitNotReady 401, @auth unless response.metadata.code == 204
 
-      auto_set_online = @auth.auto_set_online ? @meshbluConfig.auto_set_online
-      @upstream = meshblu.createConnection
-        auto_set_online: auto_set_online
-        bufferRate: 0
-        skip_resubscribe_on_reconnect: true
-        server: @meshbluConfig.server
-        port: @meshbluConfig.port
-        uuid: @auth.uuid
-        token: @auth.token
-        options: transports: ['websocket']
-
-      @upstream = _.bindAll @upstream, _.functionsIn(@upstream)
-
-      @upstream.once 'ready', @setupUpstream
-      @upstream.on 'ready', @onUpstreamReady
-      @upstream.on 'notReady', (response) =>
-        @socket.emit 'notReady', response
-      @upstream.on 'connect_error', @onUpstreamConnectError
+      @_setOnline() unless @auth.auto_set_online == false
+      @_emitReady()
 
   onSubscribe: (data) =>
     data.types ?= ['broadcast', 'received', 'sent']
@@ -99,41 +106,34 @@ class SocketIOHandler
       async.each response.types, (type, next) =>
         @messenger.unsubscribe {type, uuid: data.uuid}, next
 
-  onUpstreamConnectError: (message) =>
-    @socket.emit 'connect_error', message
+  _autoRegister: (auth) =>
+    {auto_set_online} = auth
+    register = @handlerHandler RegisterDeviceHandler
+    @auth = auth
+    data = _.cloneDeep auth
+    delete data.auto_set_online
+    register data, (response) =>
+      @auth = response
+      @auth.auto_set_online = auto_set_online
 
-  onUpstreamReady: (response) =>
-    @auth.uuid  = response.uuid
-    @auth.token = response.token
+      @_setOnline() unless @auth.auto_set_online == false
+      @_emitReady()
 
+  _setOnline: =>
+    @_updateDevice {uuid: @auth.uuid, online: true}, ->
+
+  _setOffline: =>
+    @_updateDevice {uuid: @auth.uuid, online: false}, ->
+
+  _updateDevice: (data) =>
+    update = @handlerHandler UpdateHandler
+    update data, (response) =>
+
+  _emitReady: (data) =>
     async.each ['received', 'config', 'data'], (type, next) =>
       @messenger.subscribe {type, uuid: @auth.uuid}, next
 
-    @socket.emit 'ready', response
-
-  setupUpstream: (response) =>
-    @auth.uuid  = response.uuid
-    @auth.token = response.token
-
-    @socket.on 'authenticate', @handlerHandler AuthenticateHandler
-    @socket.on 'claimdevice', @handlerHandler ClaimDeviceHandler
-    @socket.on 'device', @handlerHandler GetDeviceHandler
-    @socket.on 'devices', @handlerHandler DevicesHandler
-    @socket.on 'getPublicKey', @handlerHandler GetDevicePublicKeyHandler
-    @socket.on 'generateAndStoreToken', @handlerHandler CreateSessionTokenHandler
-    @socket.on 'message', @handlerHandler SendMessageHandler
-    @socket.on 'mydevices', @handlerHandler MyDevicesHandler
-    @socket.on 'register', @handlerHandler RegisterDeviceHandler
-    @socket.on 'resetToken', @handlerHandler ResetTokenHandler
-    @socket.on 'revokeToken', @handlerHandler RevokeSessionTokenHandler
-    @socket.on 'revokeTokenByQuery', @handlerHandler RevokeTokenByQueryHandler
-    @socket.on 'status', @handlerHandler StatusHandler
-    @socket.on 'subscribe', @onSubscribe
-    @socket.on 'unregister', @handlerHandler UnregisterDeviceHandler
-    @socket.on 'unsubscribe', @onUnsubscribe
-    @socket.on 'update', @handlerHandler UpdateHandler
-    @socket.on 'updateas', @handlerHandler UpdateAsHandler
-    @socket.on 'whoami', @handlerHandler WhoamiHandler
+    @socket.emit 'ready', {api: 'connect', status: 201, uuid: @auth.uuid, token: @auth.token}
 
   _emitNotReady: (code, auth) =>
     @socket.emit 'notReady',

@@ -12,6 +12,14 @@ class DevicesHandler
         uuid: uuid
         token: token
       delete data.token
+
+    if data.online?
+      data.online = data.online == 'true'
+
+    _.each data, (value, key) =>
+      if value == 'null' || value == ''
+        data[key] = $exists: false
+
     request =
       metadata:
         jobType: 'SearchDevices'
