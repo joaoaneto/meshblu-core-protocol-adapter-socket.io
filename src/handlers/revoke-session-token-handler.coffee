@@ -1,11 +1,11 @@
-class RevokeTokenByQueryHandler
+class RevokeSessionTokenHandler
   constructor: ({@jobManager,@auth,@requestQueue,@responseQueue}) ->
 
   do: (data, callback=->) =>
     request =
       metadata:
-        jobType: 'RevokeTokenByQuery'
-        toUuid: @auth.uuid
+        jobType: 'RevokeSessionToken'
+        toUuid: data.uuid
         fromUuid: @auth.uuid
         auth: @auth
       data: data
@@ -16,4 +16,4 @@ class RevokeTokenByQueryHandler
       return callback JSON.parse(response.rawData) if response.rawData?
       callback null
 
-module.exports = RevokeTokenByQueryHandler
+module.exports = RevokeSessionTokenHandler

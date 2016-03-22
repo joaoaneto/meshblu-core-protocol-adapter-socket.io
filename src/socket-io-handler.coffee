@@ -13,7 +13,8 @@ GetAuthorizedSubscriptionTypesHandler = require './handlers/get-authorized-subsc
 CreateSessionTokenHandler             = require './handlers/create-session-token-handler'
 MyDevicesHandler                      = require './handlers/mydevices-handler'
 RegisterDeviceHandler                 = require './handlers/register-device-handler'
-RevokeTokenByQuery                    = require './handlers/revoke-token-by-query-handler'
+RevokeSessionTokenHandler             = require './handlers/revoke-session-token-handler'
+RevokeTokenByQueryHandler             = require './handlers/revoke-token-by-query-handler'
 SendMessageHandler                    = require './handlers/send-message-handler'
 StatusHandler                         = require './handlers/status-handler'
 UnregisterDeviceHandler               = require './handlers/unregister-device-handler'
@@ -124,7 +125,8 @@ class SocketIOHandler
     @socket.on 'mydevices', @handlerHandler MyDevicesHandler
     @socket.on 'register', @handlerHandler RegisterDeviceHandler
     @socket.on 'resetToken', @handlerHandler ResetTokenHandler
-    @socket.on 'revokeTokenByQuery', @handlerHandler RevokeTokenByQuery
+    @socket.on 'revokeToken', @handlerHandler RevokeSessionTokenHandler
+    @socket.on 'revokeTokenByQuery', @handlerHandler RevokeTokenByQueryHandler
     @socket.on 'status', @handlerHandler StatusHandler
     @socket.on 'subscribe', @onSubscribe
     @socket.on 'unregister', @handlerHandler UnregisterDeviceHandler
@@ -132,9 +134,6 @@ class SocketIOHandler
     @socket.on 'update', @handlerHandler UpdateHandler
     @socket.on 'updateas', @handlerHandler UpdateAsHandler
     @socket.on 'whoami', @handlerHandler WhoamiHandler
-
-    @socket.on 'getdata', @upstream.getdata
-    @socket.on 'revokeToken', @upstream.revokeToken
 
   _emitNotReady: (code, auth) =>
     @socket.emit 'notReady',
