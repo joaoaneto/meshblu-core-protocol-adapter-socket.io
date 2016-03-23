@@ -114,6 +114,7 @@ class SocketIOHandler
     data = _.cloneDeep auth
     delete data.auto_set_online
     register data, (response) =>
+      @_emitNotReady 500, auth unless response?
       @auth = response
       @auth.auto_set_online = auto_set_online
 
@@ -121,10 +122,12 @@ class SocketIOHandler
       @_emitReady()
 
   _setOnline: =>
+    return unless @auth?.uuid?
     @_updateDevice {uuid: @auth.uuid, online: true}
     @_sendDeviceStatusMessage online: true
 
   _setOffline: =>
+    return unless @auth?.uuid?
     @_updateDevice {uuid: @auth.uuid, online: false}
     @_sendDeviceStatusMessage online: false
 
@@ -146,7 +149,7 @@ class SocketIOHandler
 
     @socket.emit 'ready', {api: 'connect', status: 201, uuid: @auth.uuid, token: @auth.token}
 
-  _emitNotReady: (code, auth) =>
+  _emitNotReady: (code, auth={}) =>
     @socket.emit 'notReady',
       uuid:  auth.uuid
       token: auth.token
