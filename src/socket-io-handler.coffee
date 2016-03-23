@@ -70,8 +70,8 @@ class SocketIOHandler
     @socket.emit 'identify'
 
   onDisconnect: =>
-    @_setOffline() unless @auth?.auto_set_online == false
     @messenger?.close()
+    @_setOffline() unless @auth?.auto_set_online == false
 
   onIdentity: (auth) =>
     return @_autoRegister auth unless auth.uuid? && auth.token?
@@ -109,8 +109,8 @@ class SocketIOHandler
 
   _autoRegister: (auth) =>
     {auto_set_online} = auth
-    register = @handlerHandler RegisterDeviceHandler
     @auth = auth
+    register = @handlerHandler RegisterDeviceHandler
     data = _.cloneDeep auth
     delete data.auto_set_online
     register data, (response) =>

@@ -5,7 +5,7 @@ SocketIOHandler   = require './socket-io-handler'
 JobLogger         = require 'job-logger'
 PooledJobManager  = require 'meshblu-core-pooled-job-manager'
 {Pool}            = require 'generic-pool'
-redis             = require 'redis'
+redis             = require 'ioredis'
 RedisNS           = require '@octoblu/redis-ns'
 MessengerFactory  = require './messenger-factory'
 UuidAliasResolver = require 'meshblu-uuid-alias-resolver'
@@ -39,7 +39,7 @@ class Server
 
     uuidAliasClient = _.bindAll new RedisNS 'uuid-alias', redis.createClient(@redisUri)
     uuidAliasResolver = new UuidAliasResolver
-      cache: uuidAliasResolver
+      cache: uuidAliasClient
       aliasServerUri: @aliasServerUri
 
     @messengerFactory = new MessengerFactory {uuidAliasResolver, @redisUri, @namespace}
@@ -85,7 +85,13 @@ class Server
           callback null, client
           callback = null
 
-      destroy: (client) => client.end true
+      destroy: (client) =>
+        if client.quit?
+          client.quit()
+          client.disconnect false
+          return
+        client.end true
+
       validate: (client) => !client.hasError?
 
     return connectionPool
