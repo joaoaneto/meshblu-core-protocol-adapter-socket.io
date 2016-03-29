@@ -1,4 +1,4 @@
-# meshblu-server-socket.io-v1
+# meshblu-core-protocol-adapter-socket.io
 Meshblu server for socket.io v1
 
 [![Build Status](https://travis-ci.org/octoblu/meshblu-server-socket.io-v1.svg?branch=master)](https://travis-ci.org/octoblu/meshblu-server-socket.io-v1)
