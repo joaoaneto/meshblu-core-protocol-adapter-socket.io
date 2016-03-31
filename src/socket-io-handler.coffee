@@ -26,7 +26,7 @@ class SocketIOHandler
   constructor: ({@socket,@jobManager,@meshbluConfig,@messengerFactory}) ->
 
   handlerHandler: (handlerClass) =>
-    (data, callback) =>
+    (data, callback=->) => # Providing default callback cause it comes from the API consumer
       return callback() unless @auth?
       requestQueue = 'request'
       responseQueue = 'response'
