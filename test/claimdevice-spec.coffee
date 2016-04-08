@@ -1,7 +1,7 @@
 async   = require 'async'
 _       = require 'lodash'
 Connect = require './connect'
-redis = require 'redis'
+redis = require 'ioredis'
 RedisNS = require '@octoblu/redis-ns'
 
 describe 'emit: claimdevice', ->

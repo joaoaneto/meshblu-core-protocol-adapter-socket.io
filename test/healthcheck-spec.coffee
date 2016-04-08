@@ -3,7 +3,7 @@ Server  = require '../src/server'
 uuid    = require 'uuid'
 url     = require 'url'
 request = require 'request'
-redis   = require 'redis'
+redis   = require 'ioredis'
 RedisNS = require '@octoblu/redis-ns'
 
 describe 'healthcheck', ->

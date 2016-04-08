@@ -1,7 +1,6 @@
 _                                     = require 'lodash'
 async                                 = require 'async'
 http                                  = require 'http'
-meshblu                               = require 'meshblu'
 AuthenticateHandler                   = require './handlers/authenticate-handler'
 ClaimDeviceHandler                    = require './handlers/claimdevice-handler'
 GetDeviceHandler                      = require './handlers/get-device-handler'
@@ -23,7 +22,7 @@ UpdateHandler                         = require './handlers/update-handler'
 WhoamiHandler                         = require './handlers/whoami-handler'
 
 class SocketIOHandler
-  constructor: ({@socket,@jobManager,@meshbluConfig,@messengerFactory}) ->
+  constructor: ({@socket,@jobManager,@messengerFactory}) ->
 
   handlerHandler: (handlerClass) =>
     (data, callback=->) => # Providing default callback cause it comes from the API consumer
