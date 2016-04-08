@@ -1,19 +1,17 @@
-_                 = require 'lodash'
-http              = require 'http'
-SocketIO          = require 'socket.io'
-SocketIOHandler   = require './socket-io-handler'
-JobLogger         = require 'job-logger'
-PooledJobManager  = require 'meshblu-core-pooled-job-manager'
-{Pool}            = require 'generic-pool'
-redis             = require 'ioredis'
-RedisNS           = require '@octoblu/redis-ns'
-MessengerFactory  = require './messenger-factory'
-UuidAliasResolver = require 'meshblu-uuid-alias-resolver'
+_                     = require 'lodash'
+http                  = require 'http'
+SocketIO              = require 'socket.io'
+SocketIOHandler       = require './socket-io-handler'
+RedisPooledJobManager = require 'meshblu-core-redis-pooled-job-manager'
+redis                 = require 'ioredis'
+RedisNS               = require '@octoblu/redis-ns'
+MessengerFactory      = require './messenger-factory'
+UuidAliasResolver     = require 'meshblu-uuid-alias-resolver'
 
 class Server
   constructor: (options) ->
-    {@disableLogging, @port, @meshbluConfig, @aliasServerUri} = options
-    {@connectionPoolMaxConnections, @redisUri, @namespace, @jobTimeoutSeconds} = options
+    {@disableLogging, @port, @aliasServerUri} = options
+    {@maxConnections, @redisUri, @namespace, @jobTimeoutSeconds} = options
     {@jobLogRedisUri, @jobLogQueue, @jobLogSampleRate} = options
     throw new Error('need a jobLogQueue') unless @jobLogQueue?
     throw new Error('need a jobLogSampleRate') unless @jobLogSampleRate?
@@ -23,19 +21,18 @@ class Server
 
   run: (callback) =>
     @server = http.createServer()
-    connectionPool = @_createConnectionPool()
 
-    jobLogger = new JobLogger
-      indexPrefix: 'metric:meshblu-server-socket.io-v1'
-      type: 'meshblu-server-socket.io-v1:request'
-      client: redis.createClient(@jobLogRedisUri)
-      jobLogQueue: @jobLogQueue
-      sampleRate: @jobLogSampleRate
-
-    @jobManager = new PooledJobManager
-      timeoutSeconds: @jobTimeoutSeconds
-      pool: connectionPool
-      jobLogger: jobLogger
+    @jobManager = new RedisPooledJobManager {
+      jobLogIndexPrefix: 'metric:meshblu-core-protocol-adapter-socket.io-v1'
+      jobLogType: 'meshblu-core-protocol-adapter-socket.io-v1:request'
+      @jobTimeoutSeconds
+      @jobLogQueue
+      @jobLogRedisUri
+      @jobLogSampleRate
+      @maxConnections
+      @redisUri
+      @namespace
+    }
 
     uuidAliasClient = _.bindAll new RedisNS 'uuid-alias', redis.createClient(@redisUri)
     uuidAliasResolver = new UuidAliasResolver
@@ -53,7 +50,7 @@ class Server
     @server.close callback
 
   onConnection: (socket) =>
-    socketIOHandler = new SocketIOHandler {socket, @jobManager, @meshbluConfig, @messengerFactory}
+    socketIOHandler = new SocketIOHandler {socket, @jobManager, @messengerFactory}
     socketIOHandler.initialize()
 
   onRequest: (request, response) =>
@@ -65,35 +62,5 @@ class Server
 
     response.writeHead 404
     response.end()
-
-  _createConnectionPool: =>
-    connectionPool = new Pool
-      max: @connectionPoolMaxConnections
-      min: 0
-      returnToHead: true # sets connection pool to stack instead of queue behavior
-      create: (callback) =>
-        client = new RedisNS @namespace, redis.createClient(@redisUri)
-
-        client.on 'end', ->
-          client.hasError = new Error 'ended'
-
-        client.on 'error', (error) ->
-          client.hasError = error
-          callback error if callback?
-
-        client.once 'ready', ->
-          callback null, client
-          callback = null
-
-      destroy: (client) =>
-        if client.quit?
-          client.quit()
-          client.disconnect false
-          return
-        client.end true
-
-      validate: (client) => !client.hasError?
-
-    return connectionPool
 
 module.exports = Server

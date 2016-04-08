@@ -40,14 +40,12 @@ class Connect
     @sut = new Server
       port: 0xcafe
       jobTimeoutSeconds: 1
-      meshbluConfig:
-        server: 'localhost'
-        port:   0xbabe
       jobLogRedisUri: 'redis://localhost'
       redisUri: 'redis://localhost'
       jobLogQueue: 'junk'
       namespace: 'ns'
       jobLogSampleRate: 0
+      maxConnections: 10
 
     @sut.run callback
 
@@ -58,6 +56,7 @@ class Connect
       uuid: 'masseuse'
       token: 'assassin'
       options: transports: ['websocket']
+      auto_set_online: false
 
     @connection.on 'notReady', (error) =>
       console.error error.stack

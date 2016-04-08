@@ -7,7 +7,7 @@ Server                = require '../src/server'
 UpstreamMeshbluServer = require './upstream-meshblu-server'
 JobManager            = require 'meshblu-core-job-manager'
 
-describe.only 'Auto Register', ->
+describe 'Auto Register', ->
   beforeEach (done) ->
     client = new RedisNS 'ns', redis.createClient()
     client.del 'request:queue', done
@@ -26,6 +26,7 @@ describe.only 'Auto Register', ->
       redisUri: 'redis://localhost'
       jobLogQueue: 'jobz'
       jobLogSampleRate: 0
+      maxConnections: 10
 
     @sut.run done
 

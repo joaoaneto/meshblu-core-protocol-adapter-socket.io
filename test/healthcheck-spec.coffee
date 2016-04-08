@@ -13,13 +13,12 @@ describe 'healthcheck', ->
     @sut = new Server
       port: 0xcafe
       jobTimeoutSeconds: 1
-      meshbluConfig:
-        server: 'localhost'
-        port:   0xbabe
       jobLogRedisUri: 'redis://localhost'
       redisUri: 'redis://localhost'
       jobLogQueue: 'jobz'
       jobLogSampleRate: 0
+      maxConnections: 10
+      namespace: 'ns'
 
     @sut.run done
 

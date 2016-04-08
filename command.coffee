@@ -1,39 +1,25 @@
-_             = require 'lodash'
-redis         = require 'redis'
-Server        = require './src/server'
-MeshbluConfig = require 'meshblu-config'
+_      = require 'lodash'
+Server = require './src/server'
 
 class Command
   constructor: ->
-    port = process.env.PORT ? 80
-    namespace = process.env.NAMESPACE ? 'meshblu'
-    jobLogRedisUri  = process.env.JOB_LOG_REDIS_URI
-    jobLogQueue  = process.env.JOB_LOG_QUEUE
-    jobLogSampleRate = parseInt(process.env.JOB_LOG_SAMPLE_RATE)
-    connectionPoolMaxConnections = parseInt(process.env.REDIS_MAX_CONNECTIONS ? 100)
-    timeoutSeconds = parseInt(process.env.JOB_TIMEOUT_SECONDS ? 30)
-    redisUri  = process.env.REDIS_URI
-    aliasServerUri = process.env.ALIAS_SERVER_URI
-    meshbluConfig = new MeshbluConfig().toJSON()
-
-    @server = new Server {
-      port
-      namespace
-      meshbluConfig
-      jobTimeoutSeconds: timeoutSeconds
-      jobLogRedisUri
-      jobLogQueue
-      jobLogSampleRate
-      redisUri
-      connectionPoolMaxConnections
-      aliasServerUri
-    }
+    @server = new Server
+      port             : process.env.PORT ? 80
+      namespace        : process.env.NAMESPACE ? 'meshblu'
+      jobTimeoutSeconds: parseInt(process.env.JOB_TIMEOUT_SECONDS ? 30)
+      jobLogRedisUri   : process.env.JOB_LOG_REDIS_URI
+      jobLogQueue      : process.env.JOB_LOG_QUEUE
+      jobLogSampleRate : parseInt(process.env.JOB_LOG_SAMPLE_RATE)
+      redisUri         : process.env.REDIS_URI
+      maxConnections   : parseInt(process.env.REDIS_MAX_CONNECTIONS ? 100)
+      aliasServerUri   : process.env.ALIAS_SERVER_URI
 
   run: =>
     @server.run (error) =>
       return @panic error if error?
       {address,port} = @server.address()
       console.log "listening on #{address}:#{port}"
+
     process.on 'SIGTERM', =>
       console.log 'SIGTERM received, shutting down...'
       @server.stop =>
