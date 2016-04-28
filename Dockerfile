@@ -1,4 +1,4 @@
-FROM node:5
+FROM node:6
 MAINTAINER Octoblu, Inc. <docker@octoblu.com>
 
 EXPOSE 80

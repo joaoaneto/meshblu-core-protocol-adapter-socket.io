@@ -25,6 +25,8 @@ class Server
     @jobManager = new RedisPooledJobManager {
       jobLogIndexPrefix: 'metric:meshblu-core-protocol-adapter-socket.io-v1'
       jobLogType: 'meshblu-core-protocol-adapter-socket.io-v1:request'
+      minConnections: 5
+      idleTimeoutMillis: 5*60*1000
       @jobTimeoutSeconds
       @jobLogQueue
       @jobLogRedisUri
