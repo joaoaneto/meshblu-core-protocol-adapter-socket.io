@@ -23,8 +23,8 @@ class Server
     @server = http.createServer()
 
     @jobManager = new RedisPooledJobManager {
-      jobLogIndexPrefix: 'metric:meshblu-core-protocol-adapter-socket.io-v1'
-      jobLogType: 'meshblu-core-protocol-adapter-socket.io-v1:request'
+      jobLogIndexPrefix: 'metric:meshblu-core-protocol-adapter-socket-io'
+      jobLogType: 'meshblu-core-protocol-adapter-socket-io:request'
       minConnections: 5
       idleTimeoutMillis: 5*60*1000
       @jobTimeoutSeconds
