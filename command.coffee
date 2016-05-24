@@ -9,7 +9,7 @@ class Command
       jobTimeoutSeconds: parseInt(process.env.JOB_TIMEOUT_SECONDS ? 30)
       jobLogRedisUri   : process.env.JOB_LOG_REDIS_URI
       jobLogQueue      : process.env.JOB_LOG_QUEUE
-      jobLogSampleRate : parseInt(process.env.JOB_LOG_SAMPLE_RATE)
+      jobLogSampleRate : parseFloat(process.env.JOB_LOG_SAMPLE_RATE)
       redisUri         : process.env.REDIS_URI
       maxConnections   : parseInt(process.env.REDIS_MAX_CONNECTIONS ? 100)
       aliasServerUri   : process.env.ALIAS_SERVER_URI
