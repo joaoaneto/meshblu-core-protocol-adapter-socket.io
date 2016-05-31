@@ -9,12 +9,12 @@ JobManager            = require 'meshblu-core-job-manager'
 
 describe 'Auto Register', ->
   beforeEach (done) ->
-    client = new RedisNS 'ns', redis.createClient()
+    client = new RedisNS 'ns', redis.createClient(dropBufferSupport: true)
     client.del 'request:queue', done
 
   beforeEach ->
     @jobManager = new JobManager
-      client: new RedisNS 'ns', redis.createClient()
+      client: new RedisNS 'ns', redis.createClient(dropBufferSupport: true)
       timeoutSeconds: 10
 
   beforeEach (done) ->

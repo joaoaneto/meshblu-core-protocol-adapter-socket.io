@@ -10,7 +10,7 @@ UpstreamMeshbluServer = require './upstream-meshblu-server'
 class Connect
   constructor: ->
     @jobManager = new JobManager
-      client: new RedisNS 'ns', redis.createClient()
+      client: new RedisNS 'ns', redis.createClient(dropBufferSupport: true)
       timeoutSeconds: 1
 
   connect: (callback) =>
@@ -26,7 +26,7 @@ class Connect
           connection: @connection
           device: {uuid: 'masseuse', token: 'assassin'}
           jobManager: new JobManager
-            client: new RedisNS 'ns', redis.createClient()
+            client: new RedisNS 'ns', redis.createClient(dropBufferSupport: true)
             timeoutSeconds: 1
 
   shutItDown: (callback) =>
