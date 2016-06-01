@@ -5,7 +5,7 @@ class RevokeTokenByQueryHandler
     request =
       metadata:
         jobType: 'RevokeTokenByQuery'
-        toUuid: @auth.uuid
+        toUuid: data.uuid ? @auth.uuid
         fromUuid: @auth.uuid
         auth: @auth
       data: data
