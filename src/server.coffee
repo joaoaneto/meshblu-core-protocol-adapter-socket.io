@@ -51,7 +51,7 @@ class Server
       cache: uuidAliasClient
       aliasServerUri: @aliasServerUri
 
-    @messengerFactory = new MessengerFactory {uuidAliasResolver, @firehoseRedisUri, @namespace}
+    @messengerFactory = new MessengerFactory {uuidAliasResolver, @namespace, redisUri: @firehoseRedisUri}
 
     @server.on 'request', @onRequest
     @io = SocketIO @server
