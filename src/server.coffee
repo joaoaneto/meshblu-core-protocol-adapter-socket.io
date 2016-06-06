@@ -1,12 +1,12 @@
-_                     = require 'lodash'
-http                  = require 'http'
-SocketIO              = require 'socket.io'
-SocketIOHandler       = require './socket-io-handler'
-RedisPooledJobManager = require 'meshblu-core-redis-pooled-job-manager'
-redis                 = require 'ioredis'
-RedisNS               = require '@octoblu/redis-ns'
-MessengerFactory      = require './messenger-factory'
-UuidAliasResolver     = require 'meshblu-uuid-alias-resolver'
+_                       = require 'lodash'
+http                    = require 'http'
+SocketIO                = require 'socket.io'
+SocketIOHandler         = require './socket-io-handler'
+RedisPooledJobManager   = require 'meshblu-core-redis-pooled-job-manager'
+redis                   = require 'ioredis'
+RedisNS                 = require '@octoblu/redis-ns'
+MessengerManagerFactory = require 'meshblu-core-manager-messenger/factory'
+UuidAliasResolver       = require 'meshblu-uuid-alias-resolver'
 
 class Server
   constructor: (options) ->
@@ -46,12 +46,12 @@ class Server
       @namespace
     }
 
-    uuidAliasClient = _.bindAll new RedisNS 'uuid-alias', redis.createClient(@redisUri, dropBufferSupport: true)
+    uuidAliasClient = new RedisNS 'uuid-alias', redis.createClient(@redisUri, dropBufferSupport: true)
     uuidAliasResolver = new UuidAliasResolver
       cache: uuidAliasClient
       aliasServerUri: @aliasServerUri
 
-    @messengerFactory = new MessengerFactory {uuidAliasResolver, @namespace, redisUri: @firehoseRedisUri}
+    @messengerManagerFactory = new MessengerManagerFactory {uuidAliasResolver, @namespace, redisUri: @firehoseRedisUri}
 
     @server.on 'request', @onRequest
     @io = SocketIO @server
@@ -62,7 +62,7 @@ class Server
     @server.close callback
 
   onConnection: (socket) =>
-    socketIOHandler = new SocketIOHandler {socket, @jobManager, @messengerFactory}
+    socketIOHandler = new SocketIOHandler {socket, @jobManager, @messengerManagerFactory}
     socketIOHandler.initialize()
 
   onRequest: (request, response) =>

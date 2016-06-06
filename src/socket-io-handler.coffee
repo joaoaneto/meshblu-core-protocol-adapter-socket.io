@@ -22,7 +22,7 @@ UpdateHandler                         = require './handlers/update-handler'
 WhoamiHandler                         = require './handlers/whoami-handler'
 
 class SocketIOHandler
-  constructor: ({@socket,@jobManager,@messengerFactory}) ->
+  constructor: ({@socket,@jobManager,@messengerManagerFactory}) ->
 
   handlerHandler: (handlerClass) =>
     (data, callback=->) => # Providing default callback cause it comes from the API consumer
@@ -55,7 +55,11 @@ class SocketIOHandler
     @socket.on 'updateas', @handlerHandler UpdateAsHandler
     @socket.on 'whoami', @handlerHandler WhoamiHandler
 
-    @messenger = @messengerFactory.build()
+    @messenger = @messengerManagerFactory.build()
+
+    @messenger.on 'error', (error) =>
+      @_emitNotReady 500
+      @messenger.close()
 
     @messenger.on 'message', (channel, message) =>
       @socket.emit 'message', message
@@ -66,7 +70,8 @@ class SocketIOHandler
     @messenger.on 'data', (channel, message) =>
       @socket.emit 'data', message
 
-    @socket.emit 'identify'
+    @messenger.connect =>
+      @socket.emit 'identify'
 
   onDisconnect: =>
     @messenger?.close()
