@@ -1,6 +1,6 @@
 {
   "name": "meshblu-core-protocol-adapter-socket.io",
-  "version": "6.8.1",
+  "version": "6.8.2",
   "description": "Meshblu server for socket.io v1",
   "main": "index.js",
   "scripts": {
@@ -39,7 +39,7 @@
     "ioredis": "^2.0.1",
     "lodash": "^4.6.1",
     "meshblu-core-manager-messenger": "^2.3.0",
-    "meshblu-core-redis-pooled-job-manager": "^2.4.1",
+    "meshblu-core-redis-pooled-job-manager": "^2.4.2",
     "meshblu-uuid-alias-resolver": "^1.0.1",
     "socket.io": "^1.4.6"
   },
