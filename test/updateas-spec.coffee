@@ -93,7 +93,6 @@ describe 'updateas', ->
 
       describe 'when the job never responds', ->
         it 'should call the callback with the response', (done) ->
-          @timeout 3000
           onResponseCalled = => @onResponse.called
           wait = (callback) => _.delay callback, 10
 

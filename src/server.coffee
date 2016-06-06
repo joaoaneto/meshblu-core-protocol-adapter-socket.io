@@ -10,9 +10,19 @@ UuidAliasResolver     = require 'meshblu-uuid-alias-resolver'
 
 class Server
   constructor: (options) ->
-    {@disableLogging, @port, @aliasServerUri} = options
-    {@maxConnections, @redisUri, @namespace, @jobTimeoutSeconds} = options
-    {@jobLogRedisUri, @jobLogQueue, @jobLogSampleRate} = options
+    {
+      @disableLogging
+      @port
+      @aliasServerUri
+      @maxConnections
+      @redisUri
+      @firehoseRedisUri
+      @namespace
+      @jobTimeoutSeconds
+      @jobLogRedisUri
+      @jobLogQueue
+      @jobLogSampleRate
+    } = options
     throw new Error('need a jobLogQueue') unless @jobLogQueue?
     throw new Error('need a jobLogSampleRate') unless @jobLogSampleRate?
 
@@ -41,7 +51,7 @@ class Server
       cache: uuidAliasClient
       aliasServerUri: @aliasServerUri
 
-    @messengerFactory = new MessengerFactory {uuidAliasResolver, @redisUri, @namespace}
+    @messengerFactory = new MessengerFactory {uuidAliasResolver, @firehoseRedisUri, @namespace}
 
     @server.on 'request', @onRequest
     @io = SocketIO @server
