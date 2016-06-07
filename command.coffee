@@ -12,7 +12,7 @@ class Command
       jobLogSampleRate : parseFloat(process.env.JOB_LOG_SAMPLE_RATE)
       redisUri         : process.env.REDIS_URI
       firehoseRedisUri : process.env.FIREHOSE_REDIS_URI
-      maxConnections   : parseInt(process.env.REDIS_MAX_CONNECTIONS ? 100)
+      maxConnections   : parseInt(process.env.CONNECTION_POOL_MAX_CONNECTIONS ? 100)
       aliasServerUri   : process.env.ALIAS_SERVER_URI
 
   run: =>
