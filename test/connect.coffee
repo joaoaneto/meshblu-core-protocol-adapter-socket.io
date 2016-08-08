@@ -5,7 +5,6 @@ redis = require 'ioredis'
 RedisNS = require '@octoblu/redis-ns'
 JobManager = require 'meshblu-core-job-manager'
 Server = require '../src/server'
-UpstreamMeshbluServer = require './upstream-meshblu-server'
 
 class Connect
   constructor: ->

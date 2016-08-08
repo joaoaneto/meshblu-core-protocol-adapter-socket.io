@@ -4,7 +4,6 @@ meshblu               = require 'meshblu'
 redis                 = require 'ioredis'
 RedisNS               = require '@octoblu/redis-ns'
 Server                = require '../src/server'
-UpstreamMeshbluServer = require './upstream-meshblu-server'
 JobManager            = require 'meshblu-core-job-manager'
 
 describe 'Auto Register', ->

@@ -7,6 +7,7 @@ redis                   = require 'ioredis'
 RedisNS                 = require '@octoblu/redis-ns'
 MessengerManagerFactory = require 'meshblu-core-manager-messenger/factory'
 UuidAliasResolver       = require 'meshblu-uuid-alias-resolver'
+RateLimitChecker        = require 'meshblu-core-rate-limit-checker'
 
 class Server
   constructor: (options) ->
@@ -51,7 +52,14 @@ class Server
       cache: uuidAliasClient
       aliasServerUri: @aliasServerUri
 
-    @messengerManagerFactory = new MessengerManagerFactory {uuidAliasResolver, @namespace, redisUri: @firehoseRedisUri}
+    rateLimitCheckerClient = new RedisNS 'meshblu-count', redis.createClient(@redisUri, dropBufferSupport: true)
+    @rateLimitChecker = new RateLimitChecker client: rateLimitCheckerClient
+
+    @messengerManagerFactory = new MessengerManagerFactory {
+      redisUri: @firehoseRedisUri
+      uuidAliasResolver
+      @namespace
+    }
 
     @server.on 'request', @onRequest
     @io = SocketIO @server
@@ -62,7 +70,12 @@ class Server
     @server.close callback
 
   onConnection: (socket) =>
-    socketIOHandler = new SocketIOHandler {socket, @jobManager, @messengerManagerFactory}
+    socketIOHandler = new SocketIOHandler {
+      socket
+      @jobManager
+      @messengerManagerFactory
+      @rateLimitChecker
+    }
     socketIOHandler.initialize()
 
   onRequest: (request, response) =>

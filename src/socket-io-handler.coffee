@@ -22,15 +22,27 @@ UpdateHandler                         = require './handlers/update-handler'
 WhoamiHandler                         = require './handlers/whoami-handler'
 
 class SocketIOHandler
-  constructor: ({@socket,@jobManager,@messengerManagerFactory}) ->
+  constructor: (options={}) ->
+    {
+      @socket
+      @jobManager
+      @messengerManagerFactory
+      @rateLimitChecker
+    } = options
 
   handlerHandler: (handlerClass) =>
     (data, callback=->) => # Providing default callback cause it comes from the API consumer
       return callback() unless @auth?
       requestQueue = 'request'
       responseQueue = 'response'
-      handler = new handlerClass {@jobManager, @auth, requestQueue, responseQueue}
-      handler.do data, callback
+
+      uuid = @auth?.as ? @auth?.uuid
+      @rateLimitChecker.isLimited {uuid}, (error, result) =>
+        return callback error if error?
+        return @_emitRateLimit 429, @auth if result
+
+        handler = new handlerClass {@jobManager, @auth, requestQueue, responseQueue}
+        handler.do data, callback
 
   initialize: =>
     @socket.on 'authenticate', @handlerHandler AuthenticateHandler
@@ -146,6 +158,15 @@ class SocketIOHandler
       payload: data
     sendMessage = @handlerHandler SendMessageHandler
     sendMessage message, ->
+
+  _emitRateLimit: (code, auth={}) =>
+    @socket.removeAllListeners 'packet'
+    @socket.emit 'ratelimited', {
+      code: 429
+      message: 'Too Many Requests'
+    }
+    @_emitNotReady 429, @auth
+    @socket.disconnect()
 
   _emitReady: (data) =>
     async.each ['received', 'config', 'data'], (type, next) =>
