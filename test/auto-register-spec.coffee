@@ -54,8 +54,8 @@ describe 'Auto Register', ->
       @conn.once 'ready', (@device) =>
         doneOnce()
 
-    afterEach ->
-      @conn.close()
+    afterEach (done) ->
+      @conn.close done
 
     it 'should create a device', ->
       expect(@device.uuid).to.exist

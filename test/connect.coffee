@@ -29,11 +29,8 @@ class Connect
             timeoutSeconds: 1
 
   shutItDown: (callback) =>
-    @connection.close()
-
-    async.series [
-      async.apply @sut.stop
-    ], callback
+    @connection.close =>
+      @sut.stop callback
 
   startServer: (callback) =>
     @sut = new Server
