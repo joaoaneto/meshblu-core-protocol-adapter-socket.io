@@ -1,6 +1,6 @@
 {
   "name": "meshblu-core-protocol-adapter-socket.io",
-  "version": "7.0.1",
+  "version": "7.0.2",
   "description": "Meshblu server for socket.io v1",
   "main": "index.js",
   "scripts": {
