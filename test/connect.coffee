@@ -8,9 +8,11 @@ Server = require '../src/server'
 
 class Connect
   constructor: ->
+    @client = new RedisNS 'ns', redis.createClient(dropBufferSupport: true)
     @jobManager = new JobManager
-      client: new RedisNS 'ns', redis.createClient(dropBufferSupport: true)
+      client: @client
       timeoutSeconds: 1
+      jobLogSampleRate: 0
 
   connect: (callback) =>
     async.series [
@@ -20,17 +22,22 @@ class Connect
     ], (error) =>
       return callback error if error?
       @connection.on 'ready', =>
-        callback null,
-          sut: @sut
-          connection: @connection
-          device: {uuid: 'masseuse', token: 'assassin'}
-          jobManager: new JobManager
-            client: new RedisNS 'ns', redis.createClient(dropBufferSupport: true)
-            timeoutSeconds: 1
+        process.nextTick =>
+          callback null,
+            sut: @sut
+            connection: @connection
+            device: {uuid: 'masseuse', token: 'assassin'}
+            jobManager: new JobManager
+              client: new RedisNS 'ns', redis.createClient(dropBufferSupport: true)
+              timeoutSeconds: 1
+              jobLogSampleRate: 0
+    return # avoid returning async
 
   shutItDown: (callback) =>
-    @connection.close =>
-      @sut.stop callback
+    @client.del 'request:queue', =>
+      @connection.close =>
+        @sut.stop callback
+    return # promises
 
   startServer: (callback) =>
     @sut = new Server

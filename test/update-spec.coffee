@@ -8,6 +8,7 @@ describe 'update', ->
   beforeEach (done) ->
     client = new RedisNS 'ns', redis.createClient(dropBufferSupport: true)
     client.del 'request:queue', done
+    return # promises
 
   beforeEach (done) ->
     @connect = new Connect

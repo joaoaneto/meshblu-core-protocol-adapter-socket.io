@@ -1,4 +1,3 @@
-async                 = require 'async'
 _                     = require 'lodash'
 meshblu               = require 'meshblu'
 redis                 = require 'ioredis'
@@ -10,11 +9,13 @@ describe 'Auto Register', ->
   beforeEach (done) ->
     client = new RedisNS 'ns', redis.createClient(dropBufferSupport: true)
     client.del 'request:queue', done
+    return # promises
 
   beforeEach ->
     @jobManager = new JobManager
       client: new RedisNS 'ns', redis.createClient(dropBufferSupport: true)
       timeoutSeconds: 10
+      jobLogSampleRate: 0
 
   beforeEach (done) ->
     @sut = new Server
