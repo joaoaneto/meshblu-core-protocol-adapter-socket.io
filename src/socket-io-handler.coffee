@@ -31,7 +31,9 @@ class SocketIOHandler
     } = options
 
   handlerHandler: (handlerClass) =>
-    (data, callback=->) => # Providing default callback cause it comes from the API consumer
+    (data, callback) =>
+      unless _.isFunction callback
+        callback = _.noop # Providing default callback cause it comes from the API consumer
       return callback() unless @auth?
       requestQueue = 'request'
       responseQueue = 'response'
