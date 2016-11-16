@@ -24,6 +24,8 @@ describe 'Auto Register', ->
       jobTimeoutSeconds: 10
       jobLogRedisUri: 'redis://localhost'
       redisUri: 'redis://localhost'
+      cacheRedisUri: 'redis://localhost'
+      firehoseRedisUri: 'redis://localhost'
       jobLogQueue: 'jobz'
       jobLogSampleRate: 0
       maxConnections: 10

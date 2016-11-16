@@ -45,6 +45,8 @@ class Connect
       jobTimeoutSeconds: 1
       jobLogRedisUri: 'redis://localhost'
       redisUri: 'redis://localhost'
+      cacheRedisUri: 'redis://localhost'
+      firehoseRedisUri: 'redis://localhost'
       jobLogQueue: 'junk'
       namespace: 'ns'
       jobLogSampleRate: 0

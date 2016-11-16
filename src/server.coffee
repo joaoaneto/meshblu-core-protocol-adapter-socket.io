@@ -17,6 +17,7 @@ class Server
       @aliasServerUri
       @maxConnections
       @redisUri
+      @cacheRedisUri
       @firehoseRedisUri
       @namespace
       @jobTimeoutSeconds
@@ -26,6 +27,9 @@ class Server
     } = options
     throw new Error('need a jobLogQueue') unless @jobLogQueue?
     throw new Error('need a jobLogSampleRate') unless @jobLogSampleRate?
+    throw new Error('need a cacheRedisUri') unless @cacheRedisUri?
+    throw new Error('need a firehoseRedisUri') unless @firehoseRedisUri?
+    throw new Error('need a redisUri') unless @redisUri?
 
   address: =>
     @server.address()
@@ -52,7 +56,7 @@ class Server
       cache: uuidAliasClient
       aliasServerUri: @aliasServerUri
 
-    rateLimitCheckerClient = new RedisNS 'meshblu-count', redis.createClient(@redisUri, dropBufferSupport: true)
+    rateLimitCheckerClient = new RedisNS 'meshblu-count', redis.createClient(@cacheRedisUri, dropBufferSupport: true)
     @rateLimitChecker = new RateLimitChecker client: rateLimitCheckerClient
 
     @messengerManagerFactory = new MessengerManagerFactory {
