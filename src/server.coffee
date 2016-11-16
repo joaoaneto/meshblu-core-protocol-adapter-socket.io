@@ -51,12 +51,14 @@ class Server
       @namespace
     }
 
-    uuidAliasClient = new RedisNS 'uuid-alias', redis.createClient(@redisUri, dropBufferSupport: true)
+    cacheClient = redis.createClient @redisUri, dropBufferSupport: true
+
+    uuidAliasClient = new RedisNS 'uuid-alias', cacheClient
     uuidAliasResolver = new UuidAliasResolver
       cache: uuidAliasClient
       aliasServerUri: @aliasServerUri
 
-    rateLimitCheckerClient = new RedisNS 'meshblu-count', redis.createClient(@cacheRedisUri, dropBufferSupport: true)
+    rateLimitCheckerClient = new RedisNS 'meshblu-count', cacheClient
     @rateLimitChecker = new RateLimitChecker client: rateLimitCheckerClient
 
     @messengerManagerFactory = new MessengerManagerFactory {
