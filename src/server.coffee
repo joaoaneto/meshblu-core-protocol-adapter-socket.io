@@ -51,7 +51,7 @@ class Server
       @namespace
     }
 
-    cacheClient = redis.createClient @redisUri, dropBufferSupport: true
+    cacheClient = redis.createClient @cacheRedisUri, dropBufferSupport: true
 
     uuidAliasClient = new RedisNS 'uuid-alias', cacheClient
     uuidAliasResolver = new UuidAliasResolver
