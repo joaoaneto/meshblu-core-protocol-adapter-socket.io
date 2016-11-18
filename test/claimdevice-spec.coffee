@@ -6,11 +6,6 @@ RedisNS = require '@octoblu/redis-ns'
 
 describe 'emit: claimdevice', ->
   beforeEach (done) ->
-    client = new RedisNS 'ns', redis.createClient(dropBufferSupport: true)
-    client.del 'request:queue', done
-    return # promises
-
-  beforeEach (done) ->
     @connect = new Connect
     @connect.connect (error, things) =>
       return done error if error?
@@ -29,7 +24,7 @@ describe 'emit: claimdevice', ->
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
-        @jobManager.getRequest ['request'], (error, @request) =>
+        @jobManager.getRequest (error, @request) =>
           expect(@request).to.exist
           done error
 
@@ -52,7 +47,7 @@ describe 'emit: claimdevice', ->
               status: 'No Content'
             rawData: '{"metadata":{"code":204,"status":"No Content"}}'
 
-          @jobManager.createResponse 'response', response, done
+          @jobManager.createResponse response, done
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called

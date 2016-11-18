@@ -26,7 +26,7 @@ describe 'emit: unregister', ->
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
-        @jobManager.getRequest ['request'], (error, @request) =>
+        @jobManager.getRequest (error, @request) =>
           expect(@request).to.exist
           done error
 
@@ -49,7 +49,7 @@ describe 'emit: unregister', ->
               status: 'No Content'
             data: {}
 
-          @jobManager.createResponse 'response', response, done
+          @jobManager.createResponse response, done
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called
@@ -69,7 +69,7 @@ describe 'emit: unregister', ->
               code: 422
               status: 'Unprocessable Entity'
 
-          @jobManager.createResponse 'response', response, done
+          @jobManager.createResponse response, done
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called

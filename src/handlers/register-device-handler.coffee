@@ -1,7 +1,7 @@
 _ = require 'lodash'
 
 class RegisterDeviceHandler
-  constructor: ({@jobManager,@auth,@requestQueue,@responseQueue}) ->
+  constructor: ({@jobManager,@auth}) ->
 
   do: (data={}, callback=->) =>
     unless _.isPlainObject data
@@ -24,7 +24,7 @@ class RegisterDeviceHandler
         jobType: 'RegisterDevice'
       data: data
 
-    @jobManager.do @requestQueue, @responseQueue, request, (error, response) =>
+    @jobManager.do request, (error, response) =>
       return callback error: error.message if error?
       return callback JSON.parse response.rawData
 

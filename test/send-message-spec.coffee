@@ -29,7 +29,7 @@ describe 'emit: message', ->
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
-        @jobManager.getRequest ['request'], (error, @request) =>
+        @jobManager.getRequest (error, @request) =>
           expect(@request).to.exist
           done error
 
@@ -49,7 +49,7 @@ describe 'emit: message', ->
               responseId: @request.metadata.responseId
               code: 204
 
-          @jobManager.createResponse 'response', response, done
+          @jobManager.createResponse response, done
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called
@@ -67,7 +67,7 @@ describe 'emit: message', ->
               responseId: @request.metadata.responseId
               code: 422
 
-          @jobManager.createResponse 'response', response, done
+          @jobManager.createResponse response, done
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called

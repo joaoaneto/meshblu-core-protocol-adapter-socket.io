@@ -1,7 +1,7 @@
 _ = require 'lodash'
 
 class WhoamiHandler
-  constructor: ({@jobManager,@auth,@requestQueue,@responseQueue}) ->
+  constructor: ({@jobManager,@auth}) ->
 
   do: (data, callback=->) =>
     if _.isFunction data
@@ -15,7 +15,7 @@ class WhoamiHandler
         fromUuid: @auth.uuid
         auth: @auth
 
-    @jobManager.do @requestQueue, @responseQueue, request, (error, response) =>
+    @jobManager.do request, (error, response) =>
       return unless _.isFunction callback
       return callback null if error?
       return callback null unless response?

@@ -1,24 +1,28 @@
-_                     = require 'lodash'
-meshblu               = require 'meshblu'
-redis                 = require 'ioredis'
-RedisNS               = require '@octoblu/redis-ns'
-Server                = require '../src/server'
-JobManager            = require 'meshblu-core-job-manager'
+_       = require 'lodash'
+meshblu = require 'meshblu'
+Redis   = require 'ioredis'
+RedisNS = require '@octoblu/redis-ns'
+Server  = require '../src/server'
+UUID    = require 'uuid'
+{ JobManagerResponder } = require 'meshblu-core-job-manager'
 
 describe 'Auto Register', ->
-  beforeEach (done) ->
-    client = new RedisNS 'ns', redis.createClient(dropBufferSupport: true)
-    client.del 'request:queue', done
-    return # promises
-
   beforeEach ->
-    @jobManager = new JobManager
-      client: new RedisNS 'ns', redis.createClient(dropBufferSupport: true)
-      timeoutSeconds: 10
+    queueId = UUID.v4()
+    @requestQueueName = "test:request:queue:#{queueId}"
+    @responseQueueName = "test:response:queue:#{queueId}"
+    @jobManager = new JobManagerResponder {
+      client: new RedisNS 'ns', new Redis 'localhost', dropBufferSupport: true
+      queueClient: new RedisNS 'ns', new Redis 'localhost', dropBufferSupport: true
+      jobTimeoutSeconds: 10
+      queueTimeoutSeconds: 10
       jobLogSampleRate: 0
+      @requestQueueName
+      @responseQueueName
+    }
 
   beforeEach (done) ->
-    @sut = new Server
+    @sut = new Server {
       namespace: 'ns'
       port: 0xcafe
       jobTimeoutSeconds: 10
@@ -29,6 +33,9 @@ describe 'Auto Register', ->
       jobLogQueue: 'jobz'
       jobLogSampleRate: 0
       maxConnections: 10
+      @requestQueueName
+      @responseQueueName
+    }
 
     @sut.run done
 
@@ -40,9 +47,7 @@ describe 'Auto Register', ->
     beforeEach (done) ->
       doneOnce = _.once done
       @conn = meshblu.createConnection({server: 'localhost', port: 0xcafe})
-      @jobManager.getRequest ['request'], (error, @request) =>
-        return done error if error?
-
+      @jobManager.do (@request, callback) =>
         response =
           metadata:
             responseId: @request.metadata.responseId
@@ -51,7 +56,7 @@ describe 'Auto Register', ->
             uuid: 'new-uuid'
             token: 'new-token'
 
-        @jobManager.createResponse 'response', response, ->
+        callback null, response
 
       setTimeout doneOnce, 4000
       @conn.once 'ready', (@device) =>

@@ -2,7 +2,7 @@ _ = require 'lodash'
 http = require 'http'
 
 class UpdateHandler
-  constructor: ({@jobManager,@auth,@requestQueue,@responseQueue}) ->
+  constructor: ({@jobManager,@auth}) ->
 
   do: (data, callback=->) =>
     unless _.isPlainObject data
@@ -24,7 +24,7 @@ class UpdateHandler
         auth: auth
       data: $set: data
 
-    @jobManager.do @requestQueue, @responseQueue, request, (error, response) =>
+    @jobManager.do request, (error, response) =>
       return callback error: error.message if error?
       callback uuid: uuid, status: 200
 

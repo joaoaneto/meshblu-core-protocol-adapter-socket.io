@@ -1,36 +1,55 @@
-_ = require 'lodash'
+_       = require 'lodash'
 meshblu = require 'meshblu'
-async = require 'async'
-redis = require 'ioredis'
+async   = require 'async'
+Redis   = require 'ioredis'
 RedisNS = require '@octoblu/redis-ns'
-JobManager = require 'meshblu-core-job-manager'
-Server = require '../src/server'
+Server  = require '../src/server'
+UUID    = require 'uuid'
+{ JobManagerResponder } = require 'meshblu-core-job-manager'
 
 class Connect
   constructor: ->
-    @client = new RedisNS 'ns', redis.createClient(dropBufferSupport: true)
-    @jobManager = new JobManager
-      client: @client
-      timeoutSeconds: 1
+    queueId = UUID.v4()
+    @requestQueueName = "test:request:queue:#{queueId}"
+    @responseQueueName = "test:response:queue:#{queueId}"
+    @client = new RedisNS 'ns', new Redis 'localhost', dropBufferSupport: true
+    @queueClient = new RedisNS 'ns', new Redis 'localhost', dropBufferSupport: true
+    @jobManager = new JobManagerResponder {
+      @client
+      @queueClient
+      jobTimeoutSeconds: 1
+      queueTimeoutSeconds: 1
       jobLogSampleRate: 0
+      @requestQueueName
+      @responseQueueName
+    }
 
   connect: (callback) =>
+    @createConnection (error) =>
+      return callback error if error?
+      @connection.on 'ready', =>
+        client = new RedisNS 'ns', new Redis 'localhost', dropBufferSupport: true
+        queueClient = new RedisNS 'ns', new Redis 'localhost', dropBufferSupport: true
+        callback null,
+          sut: @sut
+          connection: @connection
+          device: {uuid: 'masseuse', token: 'assassin'}
+          jobManager: new JobManagerResponder {
+            client
+            queueClient
+            jobTimeoutSeconds: 10
+            queueTimeoutSeconds: 10
+            jobLogSampleRate: 0
+            @requestQueueName
+            @responseQueueName
+          }
+
     async.series [
       @startServer
-      @createConnection
       @authenticateConnection
     ], (error) =>
       return callback error if error?
-      @connection.on 'ready', =>
-        process.nextTick =>
-          callback null,
-            sut: @sut
-            connection: @connection
-            device: {uuid: 'masseuse', token: 'assassin'}
-            jobManager: new JobManager
-              client: new RedisNS 'ns', redis.createClient(dropBufferSupport: true)
-              timeoutSeconds: 1
-              jobLogSampleRate: 0
+
     return # avoid returning async
 
   shutItDown: (callback) =>
@@ -40,7 +59,7 @@ class Connect
     return # promises
 
   startServer: (callback) =>
-    @sut = new Server
+    @sut = new Server {
       port: 0xcafe
       jobTimeoutSeconds: 1
       jobLogRedisUri: 'redis://localhost'
@@ -51,6 +70,9 @@ class Connect
       namespace: 'ns'
       jobLogSampleRate: 0
       maxConnections: 10
+      @requestQueueName
+      @responseQueueName
+    }
 
     @sut.run callback
 
@@ -70,14 +92,12 @@ class Connect
     callback()
 
   authenticateConnection: (callback) =>
-    @jobManager.getRequest ['request'], (error, @request) =>
-      return callback error if error?
-
+    @jobManager.do (request, next) =>
       response =
         metadata:
-          responseId: @request.metadata.responseId
+          responseId: request.metadata.responseId
           code: 204
-
-      @jobManager.createResponse 'response', response, callback
+      next null, response
+    , callback
 
 module.exports = Connect

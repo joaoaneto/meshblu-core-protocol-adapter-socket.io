@@ -26,7 +26,7 @@ describe 'emit: whoami', ->
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
-        @jobManager.getRequest ['request'], (error, @request) =>
+        @jobManager.getRequest (error, @request) =>
           expect(@request).to.exist
           done error
 
@@ -50,7 +50,7 @@ describe 'emit: whoami', ->
             data:
               uuid: @device.uuid
 
-          @jobManager.createResponse 'response', response, done
+          @jobManager.createResponse response, done
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called
@@ -70,7 +70,7 @@ describe 'emit: whoami', ->
               code: 422
               status: 'No Content'
 
-          @jobManager.createResponse 'response', response, done
+          @jobManager.createResponse response, done
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called

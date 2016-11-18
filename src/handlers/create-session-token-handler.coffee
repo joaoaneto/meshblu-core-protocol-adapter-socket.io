@@ -2,7 +2,7 @@ _    = require 'lodash'
 http = require 'http'
 
 class CreateSessionTokenHandler
-  constructor: ({@jobManager,@auth,@requestQueue,@responseQueue}) ->
+  constructor: ({@jobManager,@auth}) ->
 
   do: (data={}, callback=->) =>
     {uuid,token} = data
@@ -20,7 +20,7 @@ class CreateSessionTokenHandler
         fromUuid: auth.uuid
       data: data
 
-    @jobManager.do @requestQueue, @responseQueue, request, (error, response) =>
+    @jobManager.do request, (error, response) =>
       return callback error: error.message if error?
       return callback error: http.STATUS_CODES[response.metadata.code] unless response.metadata.code == 201
       return callback JSON.parse response.rawData

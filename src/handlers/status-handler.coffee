@@ -1,12 +1,12 @@
 class StatusHandler
-  constructor: ({@jobManager,@auth,@requestQueue,@responseQueue}) ->
+  constructor: ({@jobManager,@auth}) ->
 
   do: (data, callback=->) =>
     request =
       metadata:
         jobType: 'GetStatus'
 
-    @jobManager.do @requestQueue, @responseQueue, request, (error, response) =>
+    @jobManager.do request, (error, response) =>
       return callback error: error.message if error?
       return callback JSON.parse response.rawData
 

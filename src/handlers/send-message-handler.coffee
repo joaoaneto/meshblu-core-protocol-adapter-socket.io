@@ -1,5 +1,5 @@
 class SendMessageHandler
-  constructor: ({@jobManager,@auth,@requestQueue,@responseQueue}) ->
+  constructor: ({@jobManager,@auth}) ->
 
   do: (data, callback=->) =>
     request =
@@ -8,7 +8,7 @@ class SendMessageHandler
         auth: @auth
       data: data
 
-    @jobManager.do @requestQueue, @responseQueue, request, (error, response) =>
+    @jobManager.do request, (error, response) =>
       return callback null if error?
       return callback null unless response?
       callback null

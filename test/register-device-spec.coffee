@@ -26,7 +26,7 @@ describe 'emit: register', ->
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
-        @jobManager.getRequest ['request'], (error, @request) =>
+        @jobManager.getRequest (error, @request) =>
           expect(@request).to.exist
           done error
 
@@ -48,7 +48,7 @@ describe 'emit: register', ->
               token: 'secret-greeting'
               type: 'yo'
 
-          @jobManager.createResponse 'response', response, done
+          @jobManager.createResponse response, done
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called
@@ -68,7 +68,7 @@ describe 'emit: register', ->
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
-        @jobManager.getRequest ['request'], (error, @request) =>
+        @jobManager.getRequest (error, @request) =>
           expect(@request).to.exist
           done error
 
@@ -92,7 +92,7 @@ describe 'emit: register', ->
               discoverWhitelist: ['yo-uuid']
               configureWhitelist: ['yo-uuid']
 
-          @jobManager.createResponse 'response', response, done
+          @jobManager.createResponse response, done
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called

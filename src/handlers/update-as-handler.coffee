@@ -1,7 +1,7 @@
 http = require 'http'
 
 class UpdateAsHandler
-  constructor: ({@jobManager,@auth,@requestQueue,@responseQueue}) ->
+  constructor: ({@jobManager,@auth}) ->
 
   do: (request, callback=->) =>
     updateDeviceRequest =
@@ -13,7 +13,7 @@ class UpdateAsHandler
       data:
         $set: request.data
 
-    @jobManager.do @requestQueue, @responseQueue, updateDeviceRequest, (error, response) =>
+    @jobManager.do updateDeviceRequest, (error, response) =>
       return callback metadata: {code: 504, status: http.STATUS_CODES[504]} if error?
       callback response
 

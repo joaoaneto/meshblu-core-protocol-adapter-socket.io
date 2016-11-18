@@ -1,5 +1,5 @@
 class RevokeTokenByQueryHandler
-  constructor: ({@jobManager,@auth,@requestQueue,@responseQueue}) ->
+  constructor: ({@jobManager,@auth}) ->
 
   do: (data, callback=->) =>
     request =
@@ -10,7 +10,7 @@ class RevokeTokenByQueryHandler
         auth: @auth
       data: data
 
-    @jobManager.do @requestQueue, @responseQueue, request, (error, response) =>
+    @jobManager.do request, (error, response) =>
       return callback null if error?
       return callback null unless response?
       return callback JSON.parse(response.rawData) if response.rawData?

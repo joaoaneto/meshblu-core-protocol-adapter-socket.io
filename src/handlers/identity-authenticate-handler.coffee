@@ -1,5 +1,5 @@
 class IdentityAuthenticateHandler
-  constructor: ({@jobManager,@auth,@requestQueue,@responseQueue}) ->
+  constructor: ({@jobManager,@auth}) ->
 
   do: (data, callback=->) =>
     {uuid, token} = data
@@ -12,7 +12,7 @@ class IdentityAuthenticateHandler
           uuid: uuid
           token: token
 
-    @jobManager.do @requestQueue, @responseQueue, request, (error, response) =>
+    @jobManager.do request, (error, response) =>
       return callback error if error?
       callback null, response
 

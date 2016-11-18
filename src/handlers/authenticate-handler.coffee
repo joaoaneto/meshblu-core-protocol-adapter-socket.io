@@ -1,5 +1,5 @@
 class AuthenticateHandler
-  constructor: ({@jobManager,@auth,@requestQueue,@responseQueue}) ->
+  constructor: ({@jobManager,@auth}) ->
 
   do: (data, callback=->) =>
     {uuid, token} = data
@@ -12,7 +12,7 @@ class AuthenticateHandler
           uuid: uuid
           token: token
 
-    @jobManager.do @requestQueue, @responseQueue, request, (error, response) =>
+    @jobManager.do request, (error, response) =>
       return callback error: error.message if error?
       if response.metadata.code == 204
         return callback uuid: data.uuid, authentication: true

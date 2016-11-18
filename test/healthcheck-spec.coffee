@@ -21,6 +21,8 @@ describe 'healthcheck', ->
       jobLogSampleRate: 0
       maxConnections: 10
       namespace: 'ns'
+      requestQueueName: 'test:request:queue'
+      responseQueueName: 'test:response:queue'
 
     @sut.run done
 
