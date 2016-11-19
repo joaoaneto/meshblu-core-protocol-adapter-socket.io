@@ -93,6 +93,7 @@ class Server
     @server.listen @port, callback
 
   stop: (callback) =>
+    @jobManager?.stopProcessing()
     @server.close callback
 
   onConnection: (socket) =>
