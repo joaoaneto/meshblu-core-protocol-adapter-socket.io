@@ -52,8 +52,9 @@ class Server
       jobLogQueue: @jobLogQueue
 
     @jobManager = new JobManagerRequester {
-      client
-      queueClient
+      @redisUri
+      @namespace
+      maxConnections: 2
       @jobTimeoutSeconds
       @jobLogSampleRate
       @requestQueueName
@@ -61,15 +62,15 @@ class Server
       queueTimeoutSeconds: @jobTimeoutSeconds
     }
 
+    @jobManager.once 'error', (error) =>
+      @panic 'fatal job manager error', 1, error
+
     @jobManager._do = @jobManager.do
     @jobManager.do = (request, callback) =>
       @jobManager._do request, (error, response) =>
         jobLogger.log { error, request, response }, (jobLoggerError) =>
           return callback jobLoggerError if jobLoggerError?
           callback error, response
-
-    queueClient.on 'ready', =>
-      @jobManager.startProcessing()
 
     cacheClient = new Redis @cacheRedisUri, dropBufferSupport: true
 
@@ -87,14 +88,17 @@ class Server
       @namespace
     }
 
-    @server.on 'request', @onRequest
-    @io = SocketIO @server
-    @io.on 'connection', @onConnection
-    @server.listen @port, callback
+    @jobManager.start (error) =>
+      return callback error if error?
+
+      @server.on 'request', @onRequest
+      @io = SocketIO @server
+      @io.on 'connection', @onConnection
+      @server.listen @port, callback
 
   stop: (callback) =>
-    @jobManager?.stopProcessing()
-    @server.close callback
+    @jobManager.stop =>
+      @server.close callback
 
   onConnection: (socket) =>
     socketIOHandler = new SocketIOHandler {
@@ -114,5 +118,11 @@ class Server
 
     response.writeHead 404
     response.end()
+
+  panic: (message, exitCode, error) =>
+    error ?= new Error('generic error')
+    console.error message
+    console.error error.stack
+    process.exit exitCode
 
 module.exports = Server

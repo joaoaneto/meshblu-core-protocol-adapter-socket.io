@@ -9,27 +9,36 @@ UUID    = require 'uuid'
 describe 'Auto Register', ->
   beforeEach ->
     queueId = UUID.v4()
+    @namespace = 'ns'
+    @redisUri = 'redis://localhost'
     @requestQueueName = "test:request:queue:#{queueId}"
     @responseQueueName = "test:response:queue:#{queueId}"
+
+  beforeEach (done) ->
     @jobManager = new JobManagerResponder {
-      client: new RedisNS 'ns', new Redis 'localhost', dropBufferSupport: true
-      queueClient: new RedisNS 'ns', new Redis 'localhost', dropBufferSupport: true
+      @redisUri
+      @namespace
+      maxConnections: 1
       jobTimeoutSeconds: 10
       queueTimeoutSeconds: 10
       jobLogSampleRate: 0
       @requestQueueName
       @responseQueueName
     }
+    @jobManager.start done
+
+  afterEach (done) ->
+    @jobManager.stop done
 
   beforeEach (done) ->
     @sut = new Server {
-      namespace: 'ns'
+      namespace: @namespace
       port: 0xcafe
       jobTimeoutSeconds: 10
-      jobLogRedisUri: 'redis://localhost'
-      redisUri: 'redis://localhost'
-      cacheRedisUri: 'redis://localhost'
-      firehoseRedisUri: 'redis://localhost'
+      jobLogRedisUri: @redisUri
+      redisUri: @redisUri
+      cacheRedisUri: @redisUri
+      firehoseRedisUri: @redisUri
       jobLogQueue: 'jobz'
       jobLogSampleRate: 0
       maxConnections: 10
