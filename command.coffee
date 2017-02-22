@@ -15,12 +15,12 @@ class Command
       cacheRedisUri    : process.env.CACHE_REDIS_URI
       firehoseRedisUri : process.env.FIREHOSE_REDIS_URI
       maxConnections   : parseInt(process.env.CONNECTION_POOL_MAX_CONNECTIONS ? 100)
-      aliasServerUri   : process.env.ALIAS_SERVER_URI
+      aliasServerUri   : process.env.ALIAS_SERVER_URI || ''
       requestQueueName:  process.env.REQUEST_QUEUE_NAME
       responseQueueBaseName: process.env.RESPONSE_QUEUE_BASE_NAME
 
   run: =>
-    @panic new Error('Missing environment variable: ALIAS_SERVER_URI') unless @serverOptions.aliasServerUri?
+    @panic new Error('Missing environment variable: ALIAS_SERVER_URI') unless @serverOptions.aliasServerUri? # allowed to be empty
     @panic new Error('Missing environment variable: REDIS_URI') if _.isEmpty @serverOptions.redisUri
     @panic new Error('Missing environment variable: CACHE_REDIS_URI') if _.isEmpty @serverOptions.cacheRedisUri
     @panic new Error('Missing environment variable: JOB_LOG_REDIS_URI') if _.isEmpty @serverOptions.jobLogRedisUri
