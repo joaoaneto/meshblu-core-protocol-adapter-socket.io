@@ -29,8 +29,7 @@ describe 'emit: message', ->
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
-        @jobManager.getRequest (error, @request) =>
-          expect(@request).to.exist
+        @jobManager.wait (error, {@request, @callback}) =>
           done error
 
       it 'should create an SendMessage request', ->
@@ -43,13 +42,13 @@ describe 'emit: message', ->
           rawData: JSON.stringify(devices: ['*'])
 
       describe 'when the job responds with success', ->
-        beforeEach (done) ->
+        beforeEach ->
           response =
             metadata:
               responseId: @request.metadata.responseId
               code: 204
 
-          @jobManager.createResponse response, done
+          @callback null, response
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called
@@ -61,13 +60,13 @@ describe 'emit: message', ->
             done()
 
       describe 'when the job responds with failure', ->
-        beforeEach (done) ->
+        beforeEach ->
           response =
             metadata:
               responseId: @request.metadata.responseId
               code: 422
 
-          @jobManager.createResponse response, done
+          @callback null, response
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called

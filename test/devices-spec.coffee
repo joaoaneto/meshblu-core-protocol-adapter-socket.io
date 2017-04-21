@@ -26,8 +26,7 @@ describe 'emit: devices', ->
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
-        @jobManager.getRequest (error, @request) =>
-          expect(@request).to.exist
+        @jobManager.wait (error, {@request, @callback}) =>
           done error
 
       it 'should create an SearchDevices request', ->
@@ -41,7 +40,7 @@ describe 'emit: devices', ->
           rawData: '{"type":"google-it"}'
 
       describe 'when the job responds with success', ->
-        beforeEach (done) ->
+        beforeEach ->
           response =
             metadata:
               responseId: @request.metadata.responseId
@@ -53,7 +52,7 @@ describe 'emit: devices', ->
               {uuid: '3'}
             ]
 
-          @jobManager.createResponse response, done
+          @callback null, response
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called
@@ -74,8 +73,7 @@ describe 'emit: devices', ->
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
-        @jobManager.getRequest (error, @request) =>
-          expect(@request).to.exist
+        @jobManager.wait (error, {@request, @callback}) =>
           done error
 
       it 'should create an SearchDevices request', ->
@@ -89,7 +87,7 @@ describe 'emit: devices', ->
           rawData: '{"uuid":"great-scott"}'
 
       describe 'when the job responds with success', ->
-        beforeEach (done) ->
+        beforeEach ->
           response =
             metadata:
               responseId: @request.metadata.responseId
@@ -101,7 +99,7 @@ describe 'emit: devices', ->
               {uuid: '3'}
             ]
 
-          @jobManager.createResponse response, done
+          @callback null, response
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called

@@ -15,20 +15,27 @@ describe 'Auto Register', ->
     @responseQueueName = "test:response:queue:#{queueId}"
 
   beforeEach (done) ->
+    @workerFunc = (@request, callback) =>
+      @jobManagerDo @request, callback
+
     @jobManager = new JobManagerResponder {
       @redisUri
       @namespace
+      @workerFunc
       maxConnections: 1
-      jobTimeoutSeconds: 10
-      queueTimeoutSeconds: 10
-      jobLogSampleRate: 0
-      @requestQueueName
-      @responseQueueName
+      queueTimeoutSeconds: 1
+      jobTimeoutSeconds: 1
+      jobLogSampleRate: 1
+      requestQueueName: @requestQueueName
+      responseQueueName: @responseQueueName
     }
     @jobManager.start done
 
-  afterEach (done) ->
-    @jobManager.stop done
+  beforeEach ->
+    @jobManager.do = (@jobManagerDo) =>
+
+  afterEach ->
+    @jobManager.stop()
 
   beforeEach (done) ->
     @sut = new Server {
@@ -48,8 +55,8 @@ describe 'Auto Register', ->
 
     @sut.run done
 
-  afterEach (done) ->
-    @sut.stop done
+  afterEach ->
+    @sut.stop()
 
   describe 'when an unauthenticated client connects', ->
     @timeout 5000

@@ -30,8 +30,7 @@ describe 'update', ->
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
-        @jobManager.getRequest (error, @request) =>
-          expect(@request).to.exist
+        @jobManager.wait (error, {@request, @callback}) =>
           done error
 
       it 'should create an UpdateDevice request', ->
@@ -45,7 +44,7 @@ describe 'update', ->
           rawData: '{"$set":{"shock":"you will not believe it"}}'
 
       describe 'when the job responds with success', ->
-        beforeEach (done) ->
+        beforeEach ->
           response =
             metadata:
               responseId: @request.metadata.responseId
@@ -53,7 +52,7 @@ describe 'update', ->
               status: 'No Content'
             rawData: '{"metadata":{"code":204,"status":"No Content"}}'
 
-          @jobManager.createResponse response, done
+          @callback null, response
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called

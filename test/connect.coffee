@@ -14,6 +14,9 @@ class Connect
     @responseQueueName = "test:response:queue:#{queueId}"
     @namespace = 'test:http'
     @redisUri = 'redis://localhost'
+    @workerFunc = (@request, callback=_.noop) =>
+      @jobManagerDo @request, callback
+
     @jobManager = new JobManagerResponder {
       @namespace
       @redisUri
@@ -23,7 +26,10 @@ class Connect
       jobLogSampleRate: 0
       @requestQueueName
       @responseQueueName
+      @workerFunc
     }
+    @jobManager.do = (@jobManagerDo) =>
+    @jobManager.wait = (@testCallback) =>
 
   connect: (callback) =>
     @jobManager.start (error) =>
@@ -31,24 +37,12 @@ class Connect
       @createConnection (error) =>
         return callback error if error?
         @connection.on 'ready', =>
-          jobManager = new JobManagerResponder {
-            @namespace
-            @redisUri
-            maxConnections: 1
-            jobTimeoutSeconds: 10
-            queueTimeoutSeconds: 10
-            jobLogSampleRate: 0
-            @requestQueueName
-            @responseQueueName
+          callback null, {
+            sut: @sut
+            connection: @connection
+            device: {uuid: 'masseuse', token: 'assassin'}
+            @jobManager
           }
-          jobManager.start (error) =>
-            return callback error if error?
-            callback null, {
-              sut: @sut
-              connection: @connection
-              device: {uuid: 'masseuse', token: 'assassin'}
-              jobManager
-            }
 
     async.series [
       @startServer
@@ -59,9 +53,9 @@ class Connect
     return # avoid returning async
 
   shutItDown: (callback) =>
-    @jobManager.stop =>
-      @connection.close =>
-        @sut.stop callback
+    @jobManager.stop() # don't wait
+    @connection.close =>
+      @sut.stop callback
 
   startServer: (callback) =>
     @sut = new Server {
@@ -103,6 +97,8 @@ class Connect
           responseId: request.metadata.responseId
           code: 204
       next null, response
+      @jobManagerDo = (request, callback) =>
+        @testCallback null, { request, callback } # WTF?!
     , callback
 
 module.exports = Connect

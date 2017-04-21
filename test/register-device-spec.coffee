@@ -26,8 +26,7 @@ describe 'emit: register', ->
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
-        @jobManager.getRequest (error, @request) =>
-          expect(@request).to.exist
+        @jobManager.wait (error, {@request, @callback}) =>
           done error
 
       it 'should create an GetStatus request', ->
@@ -37,7 +36,7 @@ describe 'emit: register', ->
           rawData: '{"type":"yo","discoverWhitelist":["*"],"configureWhitelist":["*"],"sendWhitelist":["*"],"receiveWhitelist":["*"]}'
 
       describe 'when the job responds with success', ->
-        beforeEach (done) ->
+        beforeEach ->
           response =
             metadata:
               responseId: @request.metadata.responseId
@@ -48,7 +47,7 @@ describe 'emit: register', ->
               token: 'secret-greeting'
               type: 'yo'
 
-          @jobManager.createResponse response, done
+          @callback null, response
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called
@@ -68,8 +67,7 @@ describe 'emit: register', ->
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
-        @jobManager.getRequest (error, @request) =>
-          expect(@request).to.exist
+        @jobManager.wait (error, {@request, @callback}) =>
           done error
 
       it 'should create an GetStatus request', ->
@@ -79,7 +77,7 @@ describe 'emit: register', ->
           rawData: '{"owner":"yo-uuid","discoverWhitelist":["yo-uuid"],"configureWhitelist":["yo-uuid"],"sendWhitelist":["*"],"receiveWhitelist":["*"]}'
 
       describe 'when the job responds with success', ->
-        beforeEach (done) ->
+        beforeEach ->
           response =
             metadata:
               responseId: @request.metadata.responseId
@@ -92,7 +90,7 @@ describe 'emit: register', ->
               discoverWhitelist: ['yo-uuid']
               configureWhitelist: ['yo-uuid']
 
-          @jobManager.createResponse response, done
+          @callback null, response
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called

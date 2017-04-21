@@ -26,8 +26,7 @@ describe 'emit: revokeTokenByQuery', ->
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
-        @jobManager.getRequest (error, @request) =>
-          expect(@request).to.exist
+        @jobManager.wait (error, {@request, @callback}) =>
           done error
 
       it 'should create an RevokeTokenByQuery request', ->
@@ -42,14 +41,14 @@ describe 'emit: revokeTokenByQuery', ->
           rawData: '{"tag":"hello"}'
 
       describe 'when the job responds with success', ->
-        beforeEach (done) ->
+        beforeEach ->
           response =
             metadata:
               responseId: @request.metadata.responseId
               code: 204
               status: 'No Content'
 
-          @jobManager.createResponse response, done
+          @callback null, response
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called
@@ -61,14 +60,14 @@ describe 'emit: revokeTokenByQuery', ->
             done()
 
       describe 'when the job responds with failure', ->
-        beforeEach (done) ->
+        beforeEach ->
           response =
             metadata:
               responseId: @request.metadata.responseId
               code: 422
               status: 'No Content'
 
-          @jobManager.createResponse response, done
+          @callback null, response
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called
@@ -95,8 +94,7 @@ describe 'emit: revokeTokenByQuery', ->
 
     describe 'when it has created a request', ->
       beforeEach (done) ->
-        @jobManager.getRequest (error, @request) =>
-          expect(@request).to.exist
+        @jobManager.wait (error, {@request, @callback}) =>
           done error
 
       it 'should create an RevokeTokenByQuery request', ->
@@ -111,14 +109,14 @@ describe 'emit: revokeTokenByQuery', ->
           rawData: '{"uuid":"oh-ya","tag":"hello"}'
 
       describe 'when the job responds with success', ->
-        beforeEach (done) ->
+        beforeEach ->
           response =
             metadata:
               responseId: @request.metadata.responseId
               code: 204
               status: 'No Content'
 
-          @jobManager.createResponse response, done
+          @callback null, response
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called

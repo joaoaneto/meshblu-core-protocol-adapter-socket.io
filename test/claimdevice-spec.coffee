@@ -23,9 +23,8 @@ describe 'emit: claimdevice', ->
       @connection.socket.emit 'claimdevice', request, @onResponse = sinon.spy()
 
     describe 'when it has created a request', ->
-      beforeEach (done) ->
-        @jobManager.getRequest (error, @request) =>
-          expect(@request).to.exist
+      beforeEach 'getRequest', (done) ->
+        @jobManager.wait (error, {@request, @callback}) =>
           done error
 
       it 'should create an UpdateDevice request', ->
@@ -39,7 +38,7 @@ describe 'emit: claimdevice', ->
           rawData: '{"$set":{"owner":"masseuse"},"$addToSet":{"discoverWhitelist":"masseuse","configureWhitelist":"masseuse"}}'
 
       describe 'when the job responds with success', ->
-        beforeEach (done) ->
+        beforeEach ->
           response =
             metadata:
               responseId: @request.metadata.responseId
@@ -47,7 +46,7 @@ describe 'emit: claimdevice', ->
               status: 'No Content'
             rawData: '{"metadata":{"code":204,"status":"No Content"}}'
 
-          @jobManager.createResponse response, done
+          @callback null, response
 
         it 'should call the callback with the response', (done) ->
           onResponseCalled = => @onResponse.called
