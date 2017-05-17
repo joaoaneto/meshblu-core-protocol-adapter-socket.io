@@ -1,6 +1,6 @@
 {
   "name": "meshblu-core-protocol-adapter-socket.io",
-  "version": "9.2.5",
+  "version": "9.2.6",
   "description": "Meshblu server for socket.io v1",
   "main": "index.js",
   "scripts": {
@@ -46,7 +46,7 @@
     "meshblu-core-manager-messenger": "^2.3.3",
     "meshblu-core-rate-limit-checker": "^1.0.0",
     "meshblu-uuid-alias-resolver": "^1.0.1",
-    "socket.io": "^2.0.1"
+    "socket.io": "^1.7.4"
   },
   "optionalDependencies": {
     "hiredis": "^0.5.0"
