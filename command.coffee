@@ -9,15 +9,15 @@ class Command
       namespace        : process.env.NAMESPACE ? 'meshblu'
       jobTimeoutSeconds: parseInt(process.env.JOB_TIMEOUT_SECONDS ? 30)
       jobLogRedisUri   : process.env.JOB_LOG_REDIS_URI
-      jobLogQueue      : process.env.JOB_LOG_QUEUE
-      jobLogSampleRate : parseFloat(process.env.JOB_LOG_SAMPLE_RATE)
+      jobLogQueue      : process.env.JOB_LOG_QUEUE ? 'sample-rate:1.00'
+      jobLogSampleRate : parseFloat(process.env.JOB_LOG_SAMPLE_RATE ? 0)
       redisUri         : process.env.REDIS_URI
-      cacheRedisUri    : process.env.CACHE_REDIS_URI
-      firehoseRedisUri : process.env.FIREHOSE_REDIS_URI
+      cacheRedisUri    : process.env.CACHE_REDIS_URI ? process.env.REDIS_URI
+      firehoseRedisUri : process.env.FIREHOSE_REDIS_URI ? process.env.REDIS_URI
       maxConnections   : parseInt(process.env.CONNECTION_POOL_MAX_CONNECTIONS ? 100)
-      aliasServerUri   : process.env.ALIAS_SERVER_URI || ''
-      requestQueueName:  process.env.REQUEST_QUEUE_NAME
-      responseQueueBaseName: process.env.RESPONSE_QUEUE_BASE_NAME
+      aliasServerUri   : process.env.ALIAS_SERVER_URI ? ''
+      requestQueueName:  process.env.REQUEST_QUEUE_NAME ? 'v2:request:queue'
+      responseQueueBaseName: process.env.RESPONSE_QUEUE_BASE_NAME ? 'v2:response:queue'
 
   run: =>
     @panic new Error('Missing environment variable: ALIAS_SERVER_URI') unless @serverOptions.aliasServerUri? # allowed to be empty
